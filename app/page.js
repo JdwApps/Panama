@@ -5,6 +5,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import FlipMove from 'react-flip-move';
+import dynamic from 'next/dynamic';
 
 import Link from 'next/link'
 
@@ -15,14 +16,17 @@ import { motion } from 'framer-motion';
 
 
 import localFont from 'next/font/local'
-const neon = localFont({ src: '/Neon.ttf' })
+const neon = localFont({ src: './Neon.ttf' })
 
 const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function Home() {
-
+  const DynamicMap = dynamic(
+    () => import('./Components/Map'),
+    { ssr: false }
+   );
   const categoryColors = {
     Music: '#d3c858ff',
     Exhibition: '#78b23aff',
@@ -140,7 +144,7 @@ export default function Home() {
       <FlipMove className="justify-center  flex flex-wrap ">
         {limitedEvents.map((event) => (
           <li key={event.id}
-            className="text-white w-2/5 md:w-2/5 items-center justify-center lg:w-1/5 mx-6 rounded-xl my-2"
+            className="text-white w-1/3 md:w-2/5 items-center justify-center lg:w-1/5 mx-6 rounded-xl my-2"
           >
 
             <p className="flex items-center justify-between  px-4 text-xl font-bold">
@@ -320,6 +324,7 @@ export default function Home() {
           {renderEventsList(filteredFutureEvents, showMoreFuture, handleShowMoreFuture)}
         </ul>
       </div>
+      <DynamicMap/>
     </main >
   )
 }
