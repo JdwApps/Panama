@@ -1,17 +1,15 @@
 'use client'
 
 
-import Image from 'next/image'
-import CategoHalf from './Components/CategoHalf'
+
 import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import FlipMove from 'react-flip-move';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+
 import Link from 'next/link'
 
 
-import * as L from 'leaflet';
+
 
 import { motion } from 'framer-motion';
 
