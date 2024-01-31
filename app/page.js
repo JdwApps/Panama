@@ -12,7 +12,7 @@ import Link from 'next/link'
 
 
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 import localFont from 'next/font/local'
@@ -26,7 +26,7 @@ export default function Home() {
   const DynamicMap = dynamic(
     () => import('./Components/Map'),
     { ssr: false }
-   );
+  );
   const categoryColors = {
     Music: '#d3c858ff',
     Exhibition: '#78b23aff',
@@ -52,8 +52,18 @@ export default function Home() {
   const [showMoreToday, setShowMoreToday] = useState(false);
   const [showMoreTomorrow, setShowMoreTomorrow] = useState(false);
   const [showMoreFuture, setShowMoreFuture] = useState(false);
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState('Today');
+  const [offsetToday, setOffsetToday] = useState(0);
+  const [offsetTomorrow, setOffsetTomorrow] = useState(0);
+  const [offsetFuture, setOffsetFuture] = useState(0);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
 
+  const toggleFilters = () => {
+    setIsFiltersCollapsed(!isFiltersCollapsed);
+  };
+  const filtersVariants = {
+    collapsed: { height: 0, opacity: 0, overflow: 'hidden' },
+    expanded: { height: 'auto', opacity: 1, overflow: 'visible' },
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -125,70 +135,121 @@ export default function Home() {
     setSelectedCategory(category);
   };
 
-  const handleShowMoreToday = () => {
-    setShowMoreToday(!showMoreToday);
+// Function to handle "Next" button click for Today events
+const handleShowNextToday = () => {
+  const newOffset = offsetToday + 4;
+  setOffsetToday(newOffset > todayEvents.length ? todayEvents.length : newOffset);
+};
+
+// Function to handle "Prev" button click for Today events
+const handleShowPrevToday = () => {
+  const newOffset = offsetToday - 4;
+  setOffsetToday(newOffset < 0 ? 0 : newOffset);
+};
+
+// Function to handle "Next" button click for Tomorrow events
+const handleShowNextTomorrow = () => {
+  const newOffset = offsetTomorrow + 4;
+  setOffsetTomorrow(newOffset > tomorrowEvents.length ? tomorrowEvents.length : newOffset);
+};
+
+// Function to handle "Prev" button click for Tomorrow events
+const handleShowPrevTomorrow = () => {
+  const newOffset = offsetTomorrow - 4;
+  setOffsetTomorrow(newOffset < 0 ? 0 : newOffset);
+};
+
+// Function to handle "Next" button click for Future events
+const handleShowNextFuture = () => {
+  const newOffset = offsetFuture + 4;
+  setOffsetFuture(newOffset > futureEvents.length ? futureEvents.length : newOffset);
+};
+
+// Function to handle "Prev" button click for Future events
+const handleShowPrevFuture = () => {
+  const newOffset = offsetFuture - 4;
+  setOffsetFuture(newOffset < 0 ? 0 : newOffset);
+};
+  const formatDate = (dateString) => {
+    const options = { month: 'short', day: 'numeric' };
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', options);
   };
 
-  const handleShowMoreTomorrow = () => {
-    setShowMoreTomorrow(!showMoreTomorrow);
-  };
-
-  const handleShowMoreFuture = () => {
-    setShowMoreFuture(!showMoreFuture);
-  };
-
-  const renderEventsList = (events, showMore, handleShowMore) => {
-    const limitedEvents = showMore ? events : events.slice(0, 4);
-
+  const renderEventsList = (events, handleShowNext, handleShowPrev, offset) => {
+    if (events.length === 0) {
+      return (
+        <p className="text-white text-center mt-4">
+          No events in this category: {selectedCategory}
+        </p>
+      );
+    }
+    const eventsPerPage = 4;
+    const totalEvents = events.length;
+    const totalPages = Math.ceil(totalEvents / eventsPerPage);
+    const currentPage = Math.floor(offset / eventsPerPage) + 1;
+  
+    const visibleEvents = Math.min(events.length - offset, 4);
+    const limitedEvents = events.slice(offset, offset + visibleEvents);
+  
     return (
-      <FlipMove className="justify-center  flex flex-wrap ">
+      <FlipMove className="justify-center flex flex-wrap">
         {limitedEvents.map((event) => (
-          <li key={event.id}
-            className="text-white w-1/3 md:w-2/5 items-center justify-center lg:w-1/5 mx-6 rounded-xl my-2"
+          <li
+            key={event.id}
+            className="text-white w-2/5 md:w-2/5 items-center justify-center lg:w-1/5 mx-3 rounded-xl my-8"
           >
-
-            <p className="flex items-center justify-between  px-4 text-xl font-bold">
-              {event.title}
-
-            </p>
             <img
-              className="w-full h-36 bg-gray-900 object-cover rounded-xl "
+              className="w-full h-36 bg-gray-900 object-cover rounded-xl"
               src={event.image}
             />
-            <h2 className="px-4 text-jaune">{event.category}</h2>
-            <p className="px-4 overflow-hidden truncate ">{event.description}</p>
+            <p className="flex items-center justify-between px-4 text-xl font-bold">
+              {event.title}
+            </p>
             <p className="px-4 text-marine truncate"> {event.venue.name}</p>
             <p className="px-4 text-bleu">
-              Date: {event.datebegin} - {event.dateend}
+              {event.dateend
+                ? formatDate(event.datebegin)
+                : `${formatDate(event.datebegin)} - ${formatDate(
+                    event.dateend
+                  )}`}
             </p>
+            <h2 className="px-4 text-jaune">{event.category}</h2>
             <Link
               href={{
                 pathname: '/DetailEvent',
-                query: { ...event, ...event.venue },
+                query: { eventId: event.id },
               }}
             >
-              <p
-                className="text-white bg-gray-700 px-4 py-2 rounded-md mt-2"
-              >
+              <p className="text-white bg-gray-700 px-4 py-2 rounded-md mt-2">
                 Learn More
-
               </p>
             </Link>
-            {/* Add more details here */}
-
           </li>
         ))}
         {events.length > 4 && (
           <div className="text-center w-full my-4">
-            <button onClick={handleShowMore} className="text-jaune bg-gray-800 px-4 py-2 rounded-md">
-              {showMore ? 'Show less' : 'Show more'}
+            <button
+              onClick={handleShowPrev}
+              className="text-jaune bg-gray-800 px-4 py-2 rounded-md mr-2"
+              disabled={offset === 0}
+            >
+              Prev
+            </button>
+            <span className="text-white px-4 py-2">{`${currentPage}/${totalPages}`}</span>
+            <button
+              onClick={handleShowNext}
+              className="text-jaune bg-gray-800 px-4 py-2 rounded-md"
+              disabled={offset + 4 >= events.length}
+            >
+              Next
             </button>
           </div>
         )}
       </FlipMove>
     );
   };
-
+  
 
 
 
@@ -211,9 +272,7 @@ export default function Home() {
 
   }
 
-  const handleTimeFrameClick = (timeFrame) => {
-    setSelectedTimeFrame(timeFrame);
-  };
+
 
   return (
     <main >
@@ -226,7 +285,7 @@ export default function Home() {
             alt="City Image"
 
           />
-         
+
           <div className="absolute top-1/2 left-1/2 text-4xl transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
             <h1 className="text-black font-bold">
               Explore, Experience, Enjoy:
@@ -244,27 +303,23 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className='flex'  >
+          className='flex sticky top-0 bg-gray-950 w-screen z-20'  >
           <div className={neon.className}>
 
 
             <h2 className="text-white text-center text-2xl mt-8 my-1">What are you up to ?</h2>
-            <div className='flex justify-center'>
 
-              <button
-                className="text-gray-800 px-4  bg-gray-200 
-            transition-transform duration-500 hover:scale-110 border-white 
-            my-1 py-2  md:text-sm xl:text-xl flex items-center 
-            rounded-full "
-                onClick={() => handleCategoryClick('All')}
-              >
-                All
-              </button>
-            </div>
 
-            <div className="flex flex-wrap mx-2 ">
-
-              {categories.map((category, index) => (
+            <AnimatePresence>
+              {isFiltersCollapsed && (
+                <motion.div
+                  key="filters"
+                  variants={filtersVariants}
+                  initial="collapsed"
+                  animate="expanded"
+                  exit="collapsed"
+                  className="flex flex-wrap justify-center mx-2"
+                >              {categories.map((category, index) => (
                 <motion.div
                   key={category}
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -277,8 +332,8 @@ export default function Home() {
                     key={category}
                     className={`text-gray-200 flex text-center shadow-sm 
                      shadow-black pl-2 transition-all duration-500 hover:scale-110 hover:opacity-100
-                      border-white my-1 pt-1 ml-2 md:text-sm xl:text-xl items-center rounded-full
-                       ${selectedCategory === category ? 'shadow-md shadow-white opacity-100' : ' opacity-95'}
+                      border-white my-1 pt-1 mb-4 ml-2 md:text-sm xl:text-xl items-center rounded-full
+                       ${selectedCategory === category ? 'shadow-md scale-125  shadow-white opacity-100' : ' opacity-80'}
                        `}
                     onClick={() => handleCategoryClick(category)}
                     style={{
@@ -291,7 +346,32 @@ export default function Home() {
                   </button>
                 </motion.div>
               ))}
+              <div className='flex justify-center'>
 
+                <button
+                  className="text-gray-800 px-4  bg-gray-200 
+                    transition-transform duration-500 hover:scale-110 border-white 
+                    my-1 py-2  md:text-sm xl:text-xl flex items-center 
+                    rounded-full "
+                  onClick={() => handleCategoryClick('All')}
+                >
+                  All
+                </button>
+              </div>
+
+              </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="flex justify-center">
+              <button
+                className="text-gray-800 px-4  bg-gray-200 
+                  transition-transform duration-500 hover:scale-110 border-white 
+                  my-1 py-2  md:text-sm xl:text-xl flex items-center 
+                  rounded-full "
+                onClick={toggleFilters}
+              >
+                {isFiltersCollapsed ? 'Hide Filters' : 'Show Filters'}
+              </button>
             </div>
 
           </div>
@@ -301,30 +381,27 @@ export default function Home() {
 
 
         <div className={neon.className}>
-
-          <h2 className="text-white items-center font-bold text-4xl m-8">Today</h2>
+          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
         </div>
         <ul>
-          {renderEventsList(filteredTodayEvents, showMoreToday, handleShowMoreToday)}
+        {renderEventsList(filteredTodayEvents, handleShowNextToday, handleShowPrevToday, offsetToday)}
         </ul>
+
         <div className={neon.className}>
-
-          <h2 className="text-white text-4xl my-4">Tomorrow</h2>
+          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
         </div>
-
         <ul className="rounded-lg">
-          {renderEventsList(filteredTomorrowEvents, showMoreTomorrow, handleShowMoreTomorrow)}
+        {renderEventsList(filteredTomorrowEvents, handleShowNextTomorrow, handleShowPrevTomorrow, offsetTomorrow)}
         </ul>
+
         <div className={neon.className}>
-
-          <h2 className="text-white  text-4xl my-4">Future</h2>
+          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
         </div>
-
         <ul className="rounded-lg">
-          {renderEventsList(filteredFutureEvents, showMoreFuture, handleShowMoreFuture)}
+        {renderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
         </ul>
       </div>
-      <DynamicMap/>
+      <DynamicMap />
     </main >
   )
 }
