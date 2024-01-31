@@ -178,7 +178,7 @@ export default function Home() {
     return date.toLocaleDateString('en-US', options);
   };
 
-  const renderEventsList = (events, handleShowNext, handleShowPrev, offset) => {
+  const RenderEventsList = (events, handleShowNext, handleShowPrev, offset) => {
 
     const [itemsPerPage, setItemsPerPage] = useState(4);
 
@@ -224,7 +224,7 @@ export default function Home() {
             <li
               key={event.id}
               className="text-white w-2/5 md:w-1/5 
-             h-1/2 shadow-md
+             h-1/2 
             items-center justify-center lg:w-1/5 mx-3  my-4
             
             "
@@ -235,8 +235,8 @@ export default function Home() {
                   query: { eventId: event.id },
                 }}
               >
-                <div className='border-2 border-solid border-gray-500 rounded-xl
-              transition-transform transform-gpu hover:scale-105 bg-gray-950'
+                <div className=' rounded-xl shadow-md
+              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
                 >
                   <img
                     className="w-full h-36 object-cover rounded-t-xl"
@@ -256,9 +256,6 @@ export default function Home() {
                     {event.venue.name}
                   </p>
 
-                  <h2 className="px-4 mb-2 text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                    {event.category}
-                  </h2>
                 </div>
 
 
@@ -431,21 +428,21 @@ return (
         <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
       </div>
       <ul>
-        {renderEventsList(filteredTodayEvents, handleShowNextToday, handleShowPrevToday, offsetToday)}
+        {RenderEventsList(filteredTodayEvents, handleShowNextToday, handleShowPrevToday, offsetToday)}
       </ul>
 
       <div className={neon.className}>
         <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
       </div>
       <ul className="rounded-lg">
-        {renderEventsList(filteredTomorrowEvents, handleShowNextTomorrow, handleShowPrevTomorrow, offsetTomorrow)}
+        {RenderEventsList(filteredTomorrowEvents, handleShowNextTomorrow, handleShowPrevTomorrow, offsetTomorrow)}
       </ul>
 
       <div className={neon.className}>
         <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
       </div>
       <ul className="rounded-lg">
-        {renderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
+        {RenderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
       </ul>
     </div>
     <DynamicMap />
