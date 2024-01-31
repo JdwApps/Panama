@@ -135,48 +135,75 @@ export default function Home() {
     setSelectedCategory(category);
   };
 
-// Function to handle "Next" button click for Today events
-const handleShowNextToday = () => {
-  const newOffset = offsetToday + 4;
-  setOffsetToday(newOffset > todayEvents.length ? todayEvents.length : newOffset);
-};
+  // Function to handle "Next" button click for Today events
+  const handleShowNextToday = () => {
+    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+    const newOffset = offsetToday + increment;
+    setOffsetToday(newOffset > todayEvents.length ? todayEvents.length : newOffset);
+  };
 
-// Function to handle "Prev" button click for Today events
-const handleShowPrevToday = () => {
-  const newOffset = offsetToday - 4;
-  setOffsetToday(newOffset < 0 ? 0 : newOffset);
-};
+  const handleShowPrevToday = () => {
+    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+    const newOffset = offsetToday - increment;
+    setOffsetToday(newOffset < 0 ? 0 : newOffset);
+  };
 
-// Function to handle "Next" button click for Tomorrow events
-const handleShowNextTomorrow = () => {
-  const newOffset = offsetTomorrow + 4;
-  setOffsetTomorrow(newOffset > tomorrowEvents.length ? tomorrowEvents.length : newOffset);
-};
+  const handleShowNextTomorrow = () => {
+    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+    const newOffset = offsetTomorrow + increment;
+    setOffsetTomorrow(newOffset > tomorrowEvents.length ? tomorrowEvents.length : newOffset);
+  };
 
-// Function to handle "Prev" button click for Tomorrow events
-const handleShowPrevTomorrow = () => {
-  const newOffset = offsetTomorrow - 4;
-  setOffsetTomorrow(newOffset < 0 ? 0 : newOffset);
-};
+  const handleShowPrevTomorrow = () => {
+    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+    const newOffset = offsetTomorrow - increment;
+    setOffsetTomorrow(newOffset < 0 ? 0 : newOffset);
+  };
 
-// Function to handle "Next" button click for Future events
-const handleShowNextFuture = () => {
-  const newOffset = offsetFuture + 4;
-  setOffsetFuture(newOffset > futureEvents.length ? futureEvents.length : newOffset);
-};
+  const handleShowNextFuture = () => {
+    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+    const newOffset = offsetFuture + increment;
+    setOffsetFuture(newOffset > futureEvents.length ? futureEvents.length : newOffset);
+  };
 
-// Function to handle "Prev" button click for Future events
-const handleShowPrevFuture = () => {
-  const newOffset = offsetFuture - 4;
-  setOffsetFuture(newOffset < 0 ? 0 : newOffset);
-};
+  const handleShowPrevFuture = () => {
+    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+    const newOffset = offsetFuture - increment;
+    setOffsetFuture(newOffset < 0 ? 0 : newOffset);
+  };
+
   const formatDate = (dateString) => {
-    const options = { month: 'short', day: 'numeric' };
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', options);
   };
 
   const renderEventsList = (events, handleShowNext, handleShowPrev, offset) => {
+
+    const [itemsPerPage, setItemsPerPage] = useState(4);
+
+    useEffect(() => {
+      // Update the number of items per page based on screen size
+      const handleResize = () => {
+        const newSize = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
+        setItemsPerPage(newSize);
+      };
+
+      // Initial setup and event listener
+      handleResize();
+      window.addEventListener('resize', handleResize);
+
+      // Cleanup the event listener on component unmount
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const totalEvents = events.length;
+    const totalPages = Math.ceil(totalEvents / itemsPerPage);
+    const currentPage = Math.floor(offset / itemsPerPage) + 1;
+
+    const visibleEvents = Math.min(totalEvents - offset, itemsPerPage);
+    const limitedEvents = events.slice(offset, offset + visibleEvents);
+
     if (events.length === 0) {
       return (
         <p className="text-white text-center mt-4">
@@ -184,54 +211,68 @@ const handleShowPrevFuture = () => {
         </p>
       );
     }
-    const eventsPerPage = 4;
-    const totalEvents = events.length;
-    const totalPages = Math.ceil(totalEvents / eventsPerPage);
-    const currentPage = Math.floor(offset / eventsPerPage) + 1;
-  
-    const visibleEvents = Math.min(events.length - offset, 4);
-    const limitedEvents = events.slice(offset, offset + visibleEvents);
-  
     return (
-      <FlipMove className="justify-center flex flex-wrap">
-        {limitedEvents.map((event) => (
-          <li
-            key={event.id}
-            className="text-white w-2/5 md:w-2/5 items-center justify-center lg:w-1/5 mx-3 rounded-xl my-8"
-          >
-            <img
-              className="w-full h-36 bg-gray-900 object-cover rounded-xl"
-              src={event.image}
-            />
-            <p className="flex items-center justify-between px-4 text-xl font-bold">
-              {event.title}
-            </p>
-            <p className="px-4 text-marine truncate"> {event.venue.name}</p>
-            <p className="px-4 text-bleu">
-              {event.dateend
-                ? formatDate(event.datebegin)
-                : `${formatDate(event.datebegin)} - ${formatDate(
-                    event.dateend
-                  )}`}
-            </p>
-            <h2 className="px-4 text-jaune">{event.category}</h2>
-            <Link
-              href={{
-                pathname: '/DetailEvent',
-                query: { eventId: event.id },
-              }}
+      <div>
+        <FlipMove
+          className="justify-center flex flex-wrap"
+          maintainContainerHeight='true'
+          duration={600}
+          staggerDurationBy={20}
+
+        >
+          {limitedEvents.map((event) => (
+            <li
+              key={event.id}
+              className="text-white w-2/5 md:w-1/5 
+             h-1/2 shadow-md
+            items-center justify-center lg:w-1/5 mx-3  my-4
+            
+            "
             >
-              <p className="text-white bg-gray-700 px-4 py-2 rounded-md mt-2">
-                Learn More
-              </p>
-            </Link>
-          </li>
-        ))}
-        {events.length > 4 && (
-          <div className="text-center w-full my-4">
+              <Link className='items-center '
+                href={{
+                  pathname: '/DetailEvent',
+                  query: { eventId: event.id },
+                }}
+              >
+                <div className='border-2 border-solid border-gray-500 rounded-xl
+              transition-transform transform-gpu hover:scale-105 bg-gray-950'
+                >
+                  <img
+                    className="w-full h-36 object-cover rounded-t-xl"
+                    src={event.image}
+                  />
+                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                    {event.title}
+                  </p>
+                  <p className="px-4 text-sm text-gray-300">
+                    {event.dateend
+                      ? formatDate(event.datebegin)
+                      : `${formatDate(event.datebegin)} - ${formatDate(
+                        event.dateend
+                      )}`}
+                  </p>
+                  <p className="px-4 text-sm text-bleuC truncate">
+                    {event.venue.name}
+                  </p>
+
+                  <h2 className="px-4 mb-2 text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                    {event.category}
+                  </h2>
+                </div>
+
+
+              </Link>
+            </li>
+          ))}
+
+        </FlipMove>
+        {events.length > itemsPerPage && (
+          <div className="text-center w-full my-2">
             <button
               onClick={handleShowPrev}
-              className="text-jaune bg-gray-800 px-4 py-2 rounded-md mr-2"
+              className={`px-4 py-2 shadow-lg rounded-md mr-2 transition-transform transform-gpu ${offset === 0 ? 'text-gray-400 bg-gray-800' : 'text-jauneor bg-gray-800'
+                }`}
               disabled={offset === 0}
             >
               Prev
@@ -239,87 +280,93 @@ const handleShowPrevFuture = () => {
             <span className="text-white px-4 py-2">{`${currentPage}/${totalPages}`}</span>
             <button
               onClick={handleShowNext}
-              className="text-jaune bg-gray-800 px-4 py-2 rounded-md"
-              disabled={offset + 4 >= events.length}
+              className={`px-4 py-2 shadow-lg rounded-md transition-transform transform-gpu ${offset + itemsPerPage >= events.length
+                ? 'text-gray-400 bg-gray-800'
+                : 'text-jauneor bg-gray-800'
+                }`}
+              disabled={offset + itemsPerPage >= events.length}
             >
               Next
             </button>
           </div>
-        )}
-      </FlipMove>
+          
+
+    )
+  }
+  </div>
     );
-  };
-  
+};
 
 
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case 'Music':
-        return 'music.svg';
-      case 'Exhibition':
-        return 'expo.svg';
-      case 'Theater':
-        return 'theatre.svg';
-      case 'Dance':
-        return 'dance.svg';
-      case 'Cinema':
-        return 'cinema.svg';
 
-      default:
-        return 'pin2.svg';
-    }
+const getCategoryIcon = (category) => {
+  switch (category) {
+    case 'Music':
+      return 'music.svg';
+    case 'Exhibition':
+      return 'expo.svg';
+    case 'Theater':
+      return 'theatre.svg';
+    case 'Dance':
+      return 'dance.svg';
+    case 'Cinema':
+      return 'cinema.svg';
 
+    default:
+      return 'pin2.svg';
   }
 
+}
 
 
-  return (
-    <main >
-      <div className="justify-center bg-gray-900 ">
 
-        <div className="relative">
-          <img
-            className='w-screen h-screen  object-cover'
-            src="https://ghnvkxjbfxberpmnzjuk.supabase.co/storage/v1/object/public/images/city/city.webp"
-            alt="City Image"
+return (
+  <main >
+    <div className="justify-center bg-gray-900 ">
 
-          />
+      <div className="relative">
+        <img
+          className='w-screen h-screen  object-cover'
+          src="https://ghnvkxjbfxberpmnzjuk.supabase.co/storage/v1/object/public/images/city/city.webp"
+          alt="City Image"
 
-          <div className="absolute top-1/2 left-1/2 text-4xl transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
-            <h1 className="text-black font-bold">
-              Explore, Experience, Enjoy:
-            </h1>
-            <h1 className={neon.className}>
-              Your Cultural Adventure Awaits!
-            </h1>
-          </div>
+        />
+
+        <div className="absolute top-1/2 left-1/2 text-4xl transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+          <h1 className="text-black font-bold">
+            Explore, Experience, Enjoy:
+          </h1>
+          <h1 className={neon.className}>
+            Your Cultural Adventure Awaits!
+          </h1>
         </div>
+      </div>
 
 
 
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className='flex sticky top-0 bg-gray-950 w-screen z-20'  >
-          <div className={neon.className}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className='flex sticky top-0 justify-center bg-gray-950 w-screen z-20'  >
+        <div className={neon.className}>
 
 
-            <h2 className="text-white text-center text-2xl mt-8 my-1">What are you up to ?</h2>
+          <h2 className="text-white text-center text-2xl  mt-4">What are you up to ?</h2>
 
 
-            <AnimatePresence>
-              {isFiltersCollapsed && (
-                <motion.div
-                  key="filters"
-                  variants={filtersVariants}
-                  initial="collapsed"
-                  animate="expanded"
-                  exit="collapsed"
-                  className="flex flex-wrap justify-center mx-2"
-                >              {categories.map((category, index) => (
+          <AnimatePresence>
+            {isFiltersCollapsed && (
+              <motion.div
+                key="filters"
+                variants={filtersVariants}
+                initial="collapsed"
+                animate="expanded"
+                exit="collapsed"
+                className="flex flex-wrap justify-center mx-2"
+              >              {categories.map((category, index) => (
                 <motion.div
                   key={category}
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -346,62 +393,62 @@ const handleShowPrevFuture = () => {
                   </button>
                 </motion.div>
               ))}
-              <div className='flex justify-center'>
+                <div className='flex justify-center'>
 
-                <button
-                  className="text-gray-800 px-4  bg-gray-200 
+                  <button
+                    className="text-gray-800 px-4  bg-gray-200 
                     transition-transform duration-500 hover:scale-110 border-white 
                     my-1 py-2  md:text-sm xl:text-xl flex items-center 
                     rounded-full "
-                  onClick={() => handleCategoryClick('All')}
-                >
-                  All
-                </button>
-              </div>
+                    onClick={() => handleCategoryClick('All')}
+                  >
+                    All
+                  </button>
+                </div>
 
               </motion.div>
-              )}
-            </AnimatePresence>
-            <div className="flex justify-center">
-              <button
-                className="text-gray-800 px-4  bg-gray-200 
+            )}
+          </AnimatePresence>
+          <div className="flex justify-center">
+            <button
+              className="text-gray-800 px-4  bg-gray-200 
                   transition-transform duration-500 hover:scale-110 border-white 
-                  my-1 py-2  md:text-sm xl:text-xl flex items-center 
+                  my-2 py-1  md:text-sm xl:text-xl flex items-center 
                   rounded-full "
-                onClick={toggleFilters}
-              >
-                {isFiltersCollapsed ? 'Hide Filters' : 'Show Filters'}
-              </button>
-            </div>
-
+              onClick={toggleFilters}
+            >
+              {isFiltersCollapsed ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </div>
 
-        </motion.div>
-
-
-
-        <div className={neon.className}>
-          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
         </div>
-        <ul>
-        {renderEventsList(filteredTodayEvents, handleShowNextToday, handleShowPrevToday, offsetToday)}
-        </ul>
 
-        <div className={neon.className}>
-          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
-        </div>
-        <ul className="rounded-lg">
-        {renderEventsList(filteredTomorrowEvents, handleShowNextTomorrow, handleShowPrevTomorrow, offsetTomorrow)}
-        </ul>
+      </motion.div>
 
-        <div className={neon.className}>
-          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
-        </div>
-        <ul className="rounded-lg">
-        {renderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
-        </ul>
+
+
+      <div className={neon.className}>
+        <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
       </div>
-      <DynamicMap />
-    </main >
-  )
+      <ul>
+        {renderEventsList(filteredTodayEvents, handleShowNextToday, handleShowPrevToday, offsetToday)}
+      </ul>
+
+      <div className={neon.className}>
+        <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
+      </div>
+      <ul className="rounded-lg">
+        {renderEventsList(filteredTomorrowEvents, handleShowNextTomorrow, handleShowPrevTomorrow, offsetTomorrow)}
+      </ul>
+
+      <div className={neon.className}>
+        <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
+      </div>
+      <ul className="rounded-lg">
+        {renderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
+      </ul>
+    </div>
+    <DynamicMap />
+  </main >
+)
 }

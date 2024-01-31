@@ -19,6 +19,10 @@ module.exports = {
         rouge: '#ae343eff', 
         sanguine: '#c0733dff', 
         orange: '#bc8438ff', 
+        bleuC:"#00b6e4ff",
+        jauneor:"#ffc107",
+        bleuF:"#181d3bff",
+        
       },
     },
   },
