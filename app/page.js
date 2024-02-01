@@ -235,16 +235,20 @@ export default function Home() {
                   query: { eventId: event.id },
                 }}
               >
-                <div className=' rounded-xl shadow-md
+                <div className=' rounded-md shadow-md
               transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
                 >
                   <img
-                    className="w-full h-36 object-cover rounded-t-xl"
+                    className="w-full h-36 object-cover rounded-t-md"
                     src={event.image}
                   />
                   <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
                     {event.title}
                   </p>
+
+                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                    {event.category}
+                  </h2>
                   <p className="px-4 text-sm text-gray-300">
                     {event.dateend
                       ? formatDate(event.datebegin)
@@ -441,7 +445,7 @@ return (
       <div className={neon.className}>
         <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
       </div>
-      <ul className="rounded-lg">
+      <ul className="rounded-lg pb-8">
         {RenderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
       </ul>
     </div>
