@@ -5,6 +5,28 @@ import { useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import FlipMove from 'react-flip-move';
 import Link from 'next/link';
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+
+
+const responsive = {
+  desktop: {
+    breakpoint: { max: 3000, min: 1024 },
+    items: 3,
+    slidesToSlide: 3 // optional, default to 1.
+  },
+  tablet: {
+    breakpoint: { max: 1024, min: 464 },
+    items: 2,
+    slidesToSlide: 2 // optional, default to 1.
+  },
+  mobile: {
+    breakpoint: { max: 464, min: 0 },
+    items: 1,
+    slidesToSlide: 1 // optional, default to 1.
+  }
+};
+
 
 const DetailEvent = () => {
   const [eventData, setEventData] = useState(null);
@@ -12,7 +34,8 @@ const DetailEvent = () => {
   const [venueEvents, setVenueEvents] = useState(null);
   const [relatedEvents, setRelatedEvents] = useState(null);
   const queryParams = useSearchParams();
- 
+
+
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -101,7 +124,7 @@ const DetailEvent = () => {
 
   const RenderEventsList = (events, currentEventId) => {
     const filteredEvents = events.filter((event) => event.id !== currentEventId);
-  
+
     return (
       <div>
         <FlipMove
@@ -146,7 +169,7 @@ const DetailEvent = () => {
                         event.dateend
                       )}`}
                   </p>
-                 
+
 
                 </div>
 
@@ -156,10 +179,10 @@ const DetailEvent = () => {
           ))}
 
         </FlipMove>
-       
-  </div>
+
+      </div>
     );
-};
+  };
 
 
 
@@ -208,13 +231,13 @@ const DetailEvent = () => {
           <img src={getCategoryIcon(eventData.category)} className="w-10 h-10 ml-2" />
         </p>
         <div className='h-screen'>
-        <img
-          className=" object-contain h-2/3 w-full rounded-md"
-          src={eventData.image}
-        />
+          <img
+            className=" object-contain h-2/3 w-full rounded-md"
+            src={eventData.image}
+          />
           <h2 className="px-8 text-white mt-8 font-bold text-6xl">{eventData.title}</h2>
         </div>
-      
+
         <p className="px-8 overflow-hidden mb-8 text-gray-300">{eventData.description}</p>
         <p className="px-8  text-xl text-gray-200">
           {eventData.dateend
@@ -229,23 +252,138 @@ const DetailEvent = () => {
           {new Date(0, 0, 0, eventData.hourbegin.split(':')[0], eventData.hourbegin.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
           - {new Date(0, 0, 0, eventData.hourend.split(':')[0], eventData.hourend.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
         </p>
-        <p className="px-8 text-bleuC"> {venueData.name}</p>
+        <Link className='items-center '
+          href={{
+            pathname: '/Venue',
+            query: { venueId: venueData.id },
+          }}
+        >
+          <p className="px-8 text-bleuC"> {venueData.name}</p>
+        </Link>
         <p className="px-8 pb-8 text-gray-200"> {venueData.address}</p>
 
       </div>
 
       {/* Display related events */}
       <h3 className="text-white text-center font-bold tracking-wider text-4xl m-8">Other {eventData.category} events:</h3>
-      
- 
-     
+
+
+
       <ul>
-      {RenderEventsList(relatedEvents, eventData.id)}
+        <Carousel
+
+          responsive={responsive}
+          infinite={true}
+          autoPlaySpeed={1000}
+          keyBoardControl={true}
+          transitionDuration={500}
+          removeArrowOnDeviceType={["tablet", "mobile"]}
+        >
+ {relatedEvents.map((event) => (
+            <li
+              key={event.id}
+              className="text-white 
+             h-1/2 
+            items-center justify-center mx-3  my-4
+            
+            "
+            >
+              <Link className='items-center '
+                href={{
+                  pathname: '/DetailEvent',
+                  query: { eventId: event.id },
+                }}
+              >
+                <div className=' rounded-md shadow-md
+              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+                >
+                  <img
+                    className="w-full h-36 object-cover rounded-t-md"
+                    src={event.image}
+                  />
+                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                    {event.title}
+                  </p>
+
+                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                    {event.category}
+                  </h2>
+                  <p className="px-4 text-sm text-gray-300">
+                    {event.dateend
+                      ? formatDate(event.datebegin)
+                      : `${formatDate(event.datebegin)} - ${formatDate(
+                        event.dateend
+                      )}`}
+                  </p>
+
+
+                </div>
+
+
+              </Link>
+            </li>
+          ))}
+
+        </Carousel>
 
       </ul>
       <h3 className="text-white text-center font-bold tracking-wider text-4xl m-8">Other events at  {venueData.name} :</h3>
       <ul>
-      {RenderEventsList(venueEvents, eventData.id)}
+      <Carousel
+
+responsive={responsive}
+infinite={true}
+autoPlaySpeed={1000}
+keyBoardControl={true}
+transitionDuration={500}
+removeArrowOnDeviceType={["tablet", "mobile"]}
+>
+{relatedEvents.map((event) => (
+  <li
+    key={event.id}
+    className="text-white
+   h-1/2 
+  items-center justify-center mx-3  my-4
+  
+  "
+  >
+    <Link className='items-center '
+      href={{
+        pathname: '/DetailEvent',
+        query: { eventId: event.id },
+      }}
+    >
+      <div className=' rounded-md shadow-md
+    transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+      >
+        <img
+          className="w-full h-36 object-cover rounded-t-md"
+          src={event.image}
+        />
+        <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+          {event.title}
+        </p>
+
+        <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+          {event.category}
+        </h2>
+        <p className="px-4 text-sm text-gray-300">
+          {event.dateend
+            ? formatDate(event.datebegin)
+            : `${formatDate(event.datebegin)} - ${formatDate(
+              event.dateend
+            )}`}
+        </p>
+
+
+      </div>
+
+
+    </Link>
+  </li>
+))}
+
+</Carousel>
 
       </ul>
     </div>

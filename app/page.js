@@ -6,6 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import FlipMove from 'react-flip-move';
 import dynamic from 'next/dynamic';
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 import Link from 'next/link'
 
@@ -21,6 +23,24 @@ const neon = localFont({ src: './Neon.ttf' })
 const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
 const supabase = createClient(supabaseUrl, supabaseKey);
+const responsive = {
+  desktop: {
+    breakpoint: { max: 3000, min: 1024 },
+    items: 3,
+    slidesToSlide: 3 // optional, default to 1.
+  },
+  tablet: {
+    breakpoint: { max: 1024, min: 464 },
+    items: 2,
+    slidesToSlide: 2 // optional, default to 1.
+  },
+  mobile: {
+    breakpoint: { max: 464, min: 0 },
+    items: 1,
+    slidesToSlide: 1 // optional, default to 1.
+  }
+};
+
 
 export default function Home() {
   const DynamicMap = dynamic(
@@ -49,9 +69,6 @@ export default function Home() {
   const [todayEvents, setTodayEvents] = useState([]);
   const [tomorrowEvents, setTomorrowEvents] = useState([]);
   const [futureEvents, setFutureEvents] = useState([]);
-  const [showMoreToday, setShowMoreToday] = useState(false);
-  const [showMoreTomorrow, setShowMoreTomorrow] = useState(false);
-  const [showMoreFuture, setShowMoreFuture] = useState(false);
   const [offsetToday, setOffsetToday] = useState(0);
   const [offsetTomorrow, setOffsetTomorrow] = useState(0);
   const [offsetFuture, setOffsetFuture] = useState(0);
@@ -290,166 +307,336 @@ export default function Home() {
               Next
             </button>
           </div>
-          
-
-    )
-  }
-  </div>
-    );
-};
 
 
-
-
-const getCategoryIcon = (category) => {
-  switch (category) {
-    case 'Music':
-      return 'music.svg';
-    case 'Exhibition':
-      return 'expo.svg';
-    case 'Theater':
-      return 'theatre.svg';
-    case 'Dance':
-      return 'dance.svg';
-    case 'Cinema':
-      return 'cinema.svg';
-
-    default:
-      return 'pin2.svg';
-  }
-
-}
-
-
-
-return (
-  <main >
-    <div className="justify-center bg-gray-900 ">
-
-      <div className="relative">
-        <img
-          className='w-screen h-screen  object-cover'
-          src="https://ghnvkxjbfxberpmnzjuk.supabase.co/storage/v1/object/public/images/city/city.webp"
-          alt="City Image"
-
-        />
-
-        <div className="absolute top-1/2 left-1/2 text-4xl transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
-          <h1 className="text-black font-bold">
-            Explore, Experience, Enjoy:
-          </h1>
-          <h1 className={neon.className}>
-            Your Cultural Adventure Awaits!
-          </h1>
-        </div>
+        )
+        }
       </div>
+    );
+  };
 
 
 
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className='flex sticky top-0 justify-center bg-gray-950 w-screen z-20'  >
-        <div className={neon.className}>
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'Music':
+        return 'music.svg';
+      case 'Exhibition':
+        return 'expo.svg';
+      case 'Theater':
+        return 'theatre.svg';
+      case 'Dance':
+        return 'dance.svg';
+      case 'Cinema':
+        return 'cinema.svg';
+
+      default:
+        return 'pin2.svg';
+    }
+
+  }
 
 
-          <h2 className="text-white text-center text-2xl  mt-4">What are you up to ?</h2>
+
+  return (
+    <main >
+      <div className="justify-center bg-gray-900 ">
+
+        <div className="relative">
+          <img
+            className='w-screen h-screen  object-cover'
+            src="https://ghnvkxjbfxberpmnzjuk.supabase.co/storage/v1/object/public/images/city/city.webp"
+            alt="City Image"
+
+          />
+
+          <div className="absolute top-1/2 left-1/2 text-4xl transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+            <h1 className="text-black font-bold">
+              Explore, Experience, Enjoy:
+            </h1>
+            <h1 className={neon.className}>
+              Your Cultural Adventure Awaits!
+            </h1>
+          </div>
+        </div>
 
 
-          <AnimatePresence>
-            {isFiltersCollapsed && (
-              <motion.div
-                key="filters"
-                variants={filtersVariants}
-                initial="collapsed"
-                animate="expanded"
-                exit="collapsed"
-                className="flex flex-wrap justify-center mx-2"
-              >              {categories.map((category, index) => (
+
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className='flex sticky top-0 justify-center bg-gray-950 w-screen z-20'  >
+          <div className={neon.className}>
+
+
+            <h2 className="text-white text-center text-2xl  mt-4">What are you up to ?</h2>
+
+
+            <AnimatePresence>
+              {isFiltersCollapsed && (
                 <motion.div
-                  key={category}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className=' flex justify-center mx-4'
-                >
-
-                  <button
+                  key="filters"
+                  variants={filtersVariants}
+                  initial="collapsed"
+                  animate="expanded"
+                  exit="collapsed"
+                  className="flex flex-wrap justify-center mx-2"
+                >              {categories.map((category, index) => (
+                  <motion.div
                     key={category}
-                    className={`text-gray-200 flex text-center shadow-sm 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className=' flex justify-center mx-4'
+                  >
+
+                    <button
+                      key={category}
+                      className={`text-gray-200 flex text-center shadow-sm 
                      shadow-black pl-2 transition-all duration-500 hover:scale-110 hover:opacity-100
                       border-white my-1 pt-1 mb-4 ml-2 md:text-sm xl:text-xl items-center rounded-full
                        ${selectedCategory === category ? 'shadow-md scale-125  shadow-white opacity-100' : ' opacity-80'}
                        `}
-                    onClick={() => handleCategoryClick(category)}
-                    style={{
-                      backgroundColor: `${categoryColors[category]}`,
+                      onClick={() => handleCategoryClick(category)}
+                      style={{
+                        backgroundColor: `${categoryColors[category]}`,
 
-                    }}
-                  >
-                    {category}
-                    <img src={getCategoryIcon(category)} className="w-8 h-6" />
-                  </button>
-                </motion.div>
-              ))}
-                <div className='flex justify-center'>
+                      }}
+                    >
+                      {category}
+                      <img src={getCategoryIcon(category)} className="w-8 h-6" />
+                    </button>
+                  </motion.div>
+                ))}
+                  <div className='flex justify-center'>
 
-                  <button
-                    className="text-gray-800 px-4  bg-gray-200 
+                    <button
+                      className="text-gray-800 px-4  bg-gray-200 
                     transition-transform duration-500 hover:scale-110 border-white 
                     my-1 py-2  md:text-sm xl:text-xl flex items-center 
                     rounded-full "
-                    onClick={() => handleCategoryClick('All')}
-                  >
-                    All
-                  </button>
-                </div>
+                      onClick={() => handleCategoryClick('All')}
+                    >
+                      All
+                    </button>
+                  </div>
 
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <div className="flex justify-center">
-            <button
-              className="text-gray-800 px-4  bg-gray-200 
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="flex justify-center">
+              <button
+                className="text-gray-800 px-4  bg-gray-200 
                   transition-transform duration-500 hover:scale-110 border-white 
                   my-2 py-1  md:text-sm xl:text-xl flex items-center 
                   rounded-full "
-              onClick={toggleFilters}
-            >
-              {isFiltersCollapsed ? 'Hide Filters' : 'Show Filters'}
-            </button>
+                onClick={toggleFilters}
+              >
+                {isFiltersCollapsed ? 'Hide Filters' : 'Show Filters'}
+              </button>
+            </div>
+
           </div>
 
+        </motion.div>
+
+
+
+        <div className={neon.className}>
+          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
         </div>
+        <ul>
+          <Carousel
 
-      </motion.div>
+            responsive={responsive}
+            infinite={true}
+            autoPlaySpeed={1000}
+            keyBoardControl={true}
+            transitionDuration={500}
+            removeArrowOnDeviceType={["tablet", "mobile"]}
+          >
+            {filteredTodayEvents.map((event) => (
+              <li
+                key={event.id}
+                className="text-white
+             h-1/2 
+            items-center justify-center mx-3  my-4
+            
+            "
+              >
+                <Link className='items-center '
+                  href={{
+                    pathname: '/DetailEvent',
+                    query: { eventId: event.id },
+                  }}
+                >
+                  <div className=' rounded-md shadow-md
+              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+                  >
+                    <img
+                      className="w-full h-36 object-cover rounded-t-md"
+                      src={event.image}
+                    />
+                    <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                      {event.title}
+                    </p>
+
+                    <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                      {event.category}
+                    </h2>
+                    <p className="px-4 text-sm text-gray-300">
+                      {event.dateend
+                        ? formatDate(event.datebegin)
+                        : `${formatDate(event.datebegin)} - ${formatDate(
+                          event.dateend
+                        )}`}
+                    </p>
+                    <p className="px-4 text-sm text-bleuC truncate">
+                      {event.venue.name}
+                    </p>
+
+                  </div>
 
 
+                </Link>
+              </li>
+            ))}
+          </Carousel>
 
-      <div className={neon.className}>
-        <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
+        </ul>
+
+        <div className={neon.className}>
+          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
+        </div>
+        <ul>
+          <Carousel
+
+            responsive={responsive}
+            infinite={true}
+            autoPlaySpeed={1000}
+            keyBoardControl={true}
+            transitionDuration={500}
+            removeArrowOnDeviceType={["tablet", "mobile"]}
+          >
+            {filteredTomorrowEvents.map((event) => (
+              <li
+                key={event.id}
+                className="text-white
+             h-1/2 
+            items-center justify-center mx-3  my-4
+            
+            "
+              >
+                <Link className='items-center '
+                  href={{
+                    pathname: '/DetailEvent',
+                    query: { eventId: event.id },
+                  }}
+                >
+                  <div className=' rounded-md shadow-md
+              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+                  >
+                    <img
+                      className="w-full h-36 object-cover rounded-t-md"
+                      src={event.image}
+                    />
+                    <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                      {event.title}
+                    </p>
+
+                    <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                      {event.category}
+                    </h2>
+                    <p className="px-4 text-sm text-gray-300">
+                      {event.dateend
+                        ? formatDate(event.datebegin)
+                        : `${formatDate(event.datebegin)} - ${formatDate(
+                          event.dateend
+                        )}`}
+                    </p>
+                    <p className="px-4 text-sm text-bleuC truncate">
+                      {event.venue.name}
+                    </p>
+
+                  </div>
+
+
+                </Link>
+              </li>
+            ))}
+          </Carousel>
+
+        </ul>
+
+
+        <div className={neon.className}>
+          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
+        </div>
+        <ul>
+          <Carousel
+
+            responsive={responsive}
+            infinite={true}
+            autoPlaySpeed={1000}
+            keyBoardControl={true}
+            transitionDuration={500}
+            removeArrowOnDeviceType={["tablet", "mobile"]}
+          >
+            {filteredFutureEvents.map((event) => (
+              <li
+                key={event.id}
+                className="text-white
+             h-1/2 
+            items-center justify-center mx-3  my-4
+            
+            "
+              >
+                <Link className='items-center '
+                  href={{
+                    pathname: '/DetailEvent',
+                    query: { eventId: event.id },
+                  }}
+                >
+                  <div className=' rounded-md shadow-md
+              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+                  >
+                    <img
+                      className="w-full h-36 object-cover rounded-t-md"
+                      src={event.image}
+                    />
+                    <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                      {event.title}
+                    </p>
+
+                    <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                      {event.category}
+                    </h2>
+                    <p className="px-4 text-sm text-gray-300">
+                      {event.dateend
+                        ? formatDate(event.datebegin)
+                        : `${formatDate(event.datebegin)} - ${formatDate(
+                          event.dateend
+                        )}`}
+                    </p>
+                    <p className="px-4 text-sm text-bleuC truncate">
+                      {event.venue.name}
+                    </p>
+
+                  </div>
+
+
+                </Link>
+              </li>
+            ))}
+          </Carousel>
+
+        </ul>
+
       </div>
-      <ul>
-        {RenderEventsList(filteredTodayEvents, handleShowNextToday, handleShowPrevToday, offsetToday)}
-      </ul>
-
-      <div className={neon.className}>
-        <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
-      </div>
-      <ul className="rounded-lg">
-        {RenderEventsList(filteredTomorrowEvents, handleShowNextTomorrow, handleShowPrevTomorrow, offsetTomorrow)}
-      </ul>
-
-      <div className={neon.className}>
-        <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
-      </div>
-      <ul className="rounded-lg pb-8">
-        {RenderEventsList(filteredFutureEvents, handleShowNextFuture, handleShowPrevFuture, offsetFuture)}
-      </ul>
-    </div>
-    <DynamicMap />
-  </main >
-)
+      <DynamicMap />
+    </main >
+  )
 }
