@@ -12,8 +12,8 @@ import "react-multi-carousel/lib/styles.css";
 const responsive = {
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-    items: 3,
-    slidesToSlide: 3 // optional, default to 1.
+    items: 4,
+    slidesToSlide: 4 // optional, default to 1.
   },
   tablet: {
     breakpoint: { max: 1024, min: 464 },
@@ -44,7 +44,11 @@ const Venue = () => {
           console.error('Event ID not found in query parameters.');
           return;
         }
-
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
         // Initialize Supabase client
         const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
@@ -62,7 +66,7 @@ const Venue = () => {
         } else {
           // Set the fetched event data to state
           setVenueData(venueData);
-
+ 
 
 
           // Fetch venue events
@@ -70,6 +74,8 @@ const Venue = () => {
             .from('events')
             .select('*')
             .eq('venue_id', venueId)
+            .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
+            .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
             .limit(4)
 
           if (venueEventsError) {
@@ -87,74 +93,14 @@ const Venue = () => {
     fetchEventData();
   }, [queryParams]);
 
-  if (!venueData || !venueEvents) {
+
+
+  if ( !venueData || !venueEvents) {
     return <p>Loading...</p>; // Add loading state or component
   }
 
 
 
-
-  const RenderEventsList = (events) => {
-
-
-    return (
-      <div>
-        <FlipMove
-          className="justify-center flex flex-wrap"
-          maintainContainerHeight='true'
-          duration={600}
-          staggerDurationBy={20}
-        >
-          {events.map((event) => (
-            <li
-              key={event.id}
-              className="text-white w-2/5 md:w-1/5 
-             h-1/2 
-            items-center justify-center lg:w-1/5 mx-3  my-4
-            
-            "
-            >
-              <Link className='items-center '
-                href={{
-                  pathname: '/DetailEvent',
-                  query: { eventId: event.id },
-                }}
-              >
-                <div className=' rounded-md shadow-md
-              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                >
-                  <img
-                    className="w-full h-36 object-cover rounded-t-md"
-                    src={event.image}
-                  />
-                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                    {event.title}
-                  </p>
-
-                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                    {event.category}
-                  </h2>
-                  <p className="px-4 text-sm text-gray-300">
-                    {event.dateend
-                      ? formatDate(event.datebegin)
-                      : `${formatDate(event.datebegin)} - ${formatDate(
-                        event.dateend
-                      )}`}
-                  </p>
-
-
-                </div>
-
-
-              </Link>
-            </li>
-          ))}
-
-        </FlipMove>
-
-      </div>
-    );
-  };
 
 
 
@@ -195,7 +141,7 @@ const Venue = () => {
     return date.toLocaleDateString('en-US', options);
   };
   return (
-    <div className='bg-gray-900  w-screen'>
+    <div className=' bg-gradient-to-r from-gray-900 to-blue-900 w-screen'>
       <div className='w-4/5 bg-gray-950 h-3/4 m-auto'>
         <p
           className="flex items-center justify-between text-white w-full px-4 py-4 text-2xl font-bold">
@@ -222,6 +168,7 @@ const Venue = () => {
       <h3 className="text-white text-center font-bold tracking-wider text-4xl m-8">Events at  {venueData.name} :</h3>
       <ul className='w-screen'>
         <Carousel
+          className='justify-center'
 
           responsive={responsive}
           infinite={true}
@@ -231,49 +178,49 @@ const Venue = () => {
           removeArrowOnDeviceType={["tablet", "mobile"]}
         >
           {venueEvents.map((event) => (
-          <li
-            key={event.id}
-            className="text-white  
+            <li
+              key={event.id}
+              className="text-white  
            h-1/2 
-          items-center justify-center  mx-3  my-4
+          items-center justify-center  mx-8  my-4
           
           "
-          >
-            <Link className='items-center '
-              href={{
-                pathname: '/DetailEvent',
-                query: { eventId: event.id },
-              }}
             >
-              <div className=' rounded-md shadow-md
-            transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+              <Link className='items-center '
+                href={{
+                  pathname: '/DetailEvent',
+                  query: { eventId: event.id },
+                }}
               >
-                <img
-                  className="w-full h-36 object-cover rounded-t-md"
-                  src={event.image}
-                />
-                <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                  {event.title}
-                </p>
+                <div className=' rounded-md shadow-md
+            transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+                >
+                  <img
+                    className="w-full h-36 object-cover rounded-t-md"
+                    src={event.image}
+                  />
+                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                    {event.title}
+                  </p>
 
-                <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                  {event.category}
-                </h2>
-                <p className="px-4 text-sm text-gray-300">
-                  {event.dateend
-                    ? formatDate(event.datebegin)
-                    : `${formatDate(event.datebegin)} - ${formatDate(
-                      event.dateend
-                    )}`}
-                </p>
+                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                    {event.category}
+                  </h2>
+                  <p className="px-4 text-sm text-gray-300">
+                    {event.dateend
+                      ? formatDate(event.datebegin)
+                      : `${formatDate(event.datebegin)} - ${formatDate(
+                        event.dateend
+                      )}`}
+                  </p>
 
 
-              </div>
+                </div>
 
 
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          ))}
 
 
         </Carousel>

@@ -1,85 +1,31 @@
 'use client'
-
-
-
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
-import FlipMove from 'react-flip-move';
-import dynamic from 'next/dynamic';
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
-
-import Link from 'next/link'
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Navbar from './Components/NavBar';
 
 
-
-
-import { motion, AnimatePresence } from 'framer-motion';
-
-
-import localFont from 'next/font/local'
-const neon = localFont({ src: './Neon.ttf' })
-
-const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
-const supabase = createClient(supabaseUrl, supabaseKey);
-const responsive = {
-  desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 3,
-    slidesToSlide: 3 // optional, default to 1.
-  },
-  tablet: {
-    breakpoint: { max: 1024, min: 464 },
-    items: 2,
-    slidesToSlide: 2 // optional, default to 1.
-  },
-  mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 1,
-    slidesToSlide: 1 // optional, default to 1.
-  }
-};
-
-
-export default function Home() {
-  const DynamicMap = dynamic(
-    () => import('./Components/Map'),
-    { ssr: false }
-  );
-  const categoryColors = {
-    Music: '#d3c858ff',
-    Exhibition: '#78b23aff',
-    Theater: '#2f9543ff',
-    Dance: '#278d6cff',
-    Cinema: '#3779a6ff',
-    Kids: '#4654c8ff',
-    Sports: '#7c39bfff',
-    Conference: '#b64481ff',
-    Festival: '#ae343eff',
-    Workshop: '#c0733dff',
-    Literary: '#bc8438ff',
-    Culinary: '#000',
-  };
-
-
-  const [selectedCategory, setSelectedCategory] = useState('All');
+const EventsByDate = () => {
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [todayEvents, setTodayEvents] = useState([]);
-  const [tomorrowEvents, setTomorrowEvents] = useState([]);
-  const [futureEvents, setFutureEvents] = useState([]);
-  const [offsetToday, setOffsetToday] = useState(0);
-  const [offsetTomorrow, setOffsetTomorrow] = useState(0);
-  const [offsetFuture, setOffsetFuture] = useState(0);
-  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  const toggleFilters = () => {
-    setIsFiltersCollapsed(!isFiltersCollapsed);
-  };
-  const filtersVariants = {
-    collapsed: { height: 0, opacity: 0, overflow: 'hidden' },
-    expanded: { height: 'auto', opacity: 1, overflow: 'visible' },
+  const categoryColors = {
+    Music: '#58508d',
+    Exhibition: '#8a508f',
+    Theater: '#bc5090',
+    Dance: '#de5a79',
+    Cinema: '#ff6361',
+    Kids: '#ff8531',
+    Sports: '#ffa600',
+
+    Workshop: '#003f5c',
+
   };
 
   useEffect(() => {
@@ -90,553 +36,169 @@ export default function Home() {
       const day = String(today.getDate()).padStart(2, '0');
       const formattedDate = `${year}-${month}-${day}`;
 
+      const futureDate = new Date(today);
+      futureDate.setDate(today.getDate() + 6); // Adding 7 days to today's date
+
+      const futureYear = futureDate.getFullYear();
+      const futureMonth = String(futureDate.getMonth() + 1).padStart(2, '0');
+      const futureDay = String(futureDate.getDate()).padStart(2, '0');
+      const formattedFutureDate = `${futureYear}-${futureMonth}-${futureDay}`;
+
       const { data: eventsData, error: eventsError } = await supabase
         .from('events')
         .select('*')
         .or(`datebegin.lte.${formattedDate},dateend.gte.${formattedDate}`)
-        .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`);
+        .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
+        .lte('datebegin', formattedFutureDate);
 
+      const { data: venuesData, error: venuesError } = await supabase
+        .from('venues')
+        .select('*');
 
-      const { data: venuesData, error: venuesError } = await supabase.from('venues').select('*');
       if (eventsError || venuesError) {
         console.error('Error fetching data from Supabase', eventsError || venuesError);
-      } else {
-        const mergedData = eventsData.map((event) => {
-          const venue = venuesData.find((venue) => venue.id === event.venue_id);
-          return { ...event, venue };
-        });
-        setEvents(mergedData);
-        const uniqueCategories = [...new Set(eventsData.map((event) => event.category))];
-        setCategories(uniqueCategories);
-
-
-        const todayEvents = mergedData.filter((event) => {
-
-          return event.datebegin <= formattedDate && formattedDate <= event.dateend;
-        });
-        setTodayEvents(todayEvents);
-
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowYear = tomorrow.getFullYear();
-        const tomorrowMonth = String(tomorrow.getMonth() + 1).padStart(2, '0');
-        const tomorrowDay = String(tomorrow.getDate()).padStart(2, '0');
-        const formattedTomorrowDate = `${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}`;
-
-        const tomorrowEvents = mergedData.filter((event) => {
-
-          return event.datebegin <= formattedTomorrowDate && formattedTomorrowDate <= event.dateend;
-        });
-        setTomorrowEvents(tomorrowEvents);
-
-        const futureEvents = mergedData.filter((event) => {
-
-          return event.dateend > formattedTomorrowDate;
-        });
-        setFutureEvents(futureEvents);
+        return; // Exit early if there's an error
       }
+
+      const mergedData = eventsData.map(event => {
+        const venue = venuesData.find(venue => venue.id === event.venue_id);
+        return { ...event, venue };
+      });
+
+      setEvents(mergedData);
+      const uniqueCategories = [...new Set(eventsData.map(event => event.category))];
+      setCategories(uniqueCategories);
     }
+
     fetchData();
-
   }, []);
-  console.log(events);
-  const filteredEventsByCategory = (events, category) => {
-    return category === 'All' ? events : events.filter((event) => event.category === category);
-  };
 
-  const filteredTodayEvents = filteredEventsByCategory(todayEvents, selectedCategory);
-  const filteredTomorrowEvents = filteredEventsByCategory(tomorrowEvents, selectedCategory);
-  const filteredFutureEvents = filteredEventsByCategory(futureEvents, selectedCategory);
+  // Extracting unique dates from events
+  const uniqueDates = [...new Set(events.map(event => event.datebegin))];
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-  };
-
-  // Function to handle "Next" button click for Today events
-  const handleShowNextToday = () => {
-    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-    const newOffset = offsetToday + increment;
-    setOffsetToday(newOffset > todayEvents.length ? todayEvents.length : newOffset);
-  };
-
-  const handleShowPrevToday = () => {
-    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-    const newOffset = offsetToday - increment;
-    setOffsetToday(newOffset < 0 ? 0 : newOffset);
-  };
-
-  const handleShowNextTomorrow = () => {
-    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-    const newOffset = offsetTomorrow + increment;
-    setOffsetTomorrow(newOffset > tomorrowEvents.length ? tomorrowEvents.length : newOffset);
-  };
-
-  const handleShowPrevTomorrow = () => {
-    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-    const newOffset = offsetTomorrow - increment;
-    setOffsetTomorrow(newOffset < 0 ? 0 : newOffset);
-  };
-
-  const handleShowNextFuture = () => {
-    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-    const newOffset = offsetFuture + increment;
-    setOffsetFuture(newOffset > futureEvents.length ? futureEvents.length : newOffset);
-  };
-
-  const handleShowPrevFuture = () => {
-    const increment = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-    const newOffset = offsetFuture - increment;
-    setOffsetFuture(newOffset < 0 ? 0 : newOffset);
+  const handleDateButtonClick = (date) => {
+    setSelectedDate(date);
   };
 
   const formatDate = (dateString) => {
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    const options = { weekday: 'short' };
     const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adding one day to the date
     return date.toLocaleDateString('en-US', options);
   };
 
-  const RenderEventsList = (events, handleShowNext, handleShowPrev, offset) => {
 
-    const [itemsPerPage, setItemsPerPage] = useState(4);
-
-    useEffect(() => {
-      // Update the number of items per page based on screen size
-      const handleResize = () => {
-        const newSize = window.innerWidth < 768 ? 2 : 4; // Adjust the breakpoint as needed
-        setItemsPerPage(newSize);
-      };
-
-      // Initial setup and event listener
-      handleResize();
-      window.addEventListener('resize', handleResize);
-
-      // Cleanup the event listener on component unmount
-      return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const totalEvents = events.length;
-    const totalPages = Math.ceil(totalEvents / itemsPerPage);
-    const currentPage = Math.floor(offset / itemsPerPage) + 1;
-
-    const visibleEvents = Math.min(totalEvents - offset, itemsPerPage);
-    const limitedEvents = events.slice(offset, offset + visibleEvents);
-
-    if (events.length === 0) {
-      return (
-        <p className="text-white text-center mt-4">
-          No events in this category: {selectedCategory}
-        </p>
-      );
+  const EventGroup = ({ events }) => {
+    // Check if events is undefined or null, and return a message if it is
+    if (!events) {
+      return <p>Loading events...</p>;
     }
+    const filteredEvents = events.filter(event => event.datebegin === selectedDate);
+
+    // Once events is populated, map over it and render event details
     return (
       <div>
-        <FlipMove
-          className="justify-center flex flex-wrap"
-          maintainContainerHeight='true'
-          duration={600}
-          staggerDurationBy={20}
-
-        >
-          {limitedEvents.map((event) => (
-            <li
-              key={event.id}
-              className="text-white w-2/5 md:w-1/5 
-             h-1/2 
-            items-center justify-center lg:w-1/5 mx-3  my-4
-            
-            "
+        {filteredEvents.map((event, index) => (
+          <motion.div
+            key={event.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.8, delay: index * 0.1 }}
+            className="text-white items-center justify-center m-8"
+          >
+            <Link className='items-center '
+              href={{
+                pathname: '/DetailEvent',
+                query: { eventId: event.id },
+              }}
             >
-              <Link className='items-center '
-                href={{
-                  pathname: '/DetailEvent',
-                  query: { eventId: event.id },
-                }}
-              >
-                <div className=' rounded-md shadow-md
-              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                >
-                  <img
-                    className="w-full h-36 object-cover rounded-t-md"
-                    src={event.image}
-                  />
-                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                    {event.title}
-                  </p>
+              <div className='rounded-xl shadow-md transition-transform bg-opacity-60 transform-gpu hover:scale-105 pb-2 bg-gray-950 relative'>
+                {/* Category sticker */}
+                <div
+                  style={{
+                    backgroundColor: `${categoryColors[event.category]}`,
 
-                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                    {event.category}
-                  </h2>
-                  <p className="px-4 text-sm text-gray-300">
-                    {event.dateend
-                      ? formatDate(event.datebegin)
-                      : `${formatDate(event.datebegin)} - ${formatDate(
-                        event.dateend
-                      )}`}
-                  </p>
-                  <p className="px-4 text-sm text-bleuC truncate">
-                    {event.venue.name}
-                  </p>
-
+                  }}
+                  className="absolute border-1 border-gray-200
+                   top-2 left-2 px-2 py-1 bg-bleuC text-gray-200 text-sm font-bold rounded">
+                  {event.category}
                 </div>
 
+                <div className='h-44'>
+                  <Image
+                    className="h-full object-cover w-full rounded-t-xl"
+                    src={event.image}
+                    alt={event.title}
+                    width={300} // Replace with the desired width
+                    height={100} // Replace with the desired height
+                    objectFit="cover" // Crops the image to fill the given dimensions
+                  />
+                </div>
 
-              </Link>
-            </li>
-          ))}
+                <h1 className="flex items-center mt-2 justify-between px-4 md:text-xl text-xl font-bold truncate">
+                  {event.title}
+                </h1>
+                <h1 className="flex text-gray-200 items-center text-sm justify-between px-4  truncate">
+                  {formatTime(event.hourbegin)}
+                </h1>
 
-        </FlipMove>
-        {events.length > itemsPerPage && (
-          <div className="text-center w-full my-2">
-            <button
-              onClick={handleShowPrev}
-              className={`px-4 py-2 shadow-lg rounded-md mr-2 transition-transform transform-gpu ${offset === 0 ? 'text-gray-400 bg-gray-800' : 'text-jauneor bg-gray-800'
-                }`}
-              disabled={offset === 0}
-            >
-              Prev
-            </button>
-            <span className="text-white px-4 py-2">{`${currentPage}/${totalPages}`}</span>
-            <button
-              onClick={handleShowNext}
-              className={`px-4 py-2 shadow-lg rounded-md transition-transform transform-gpu ${offset + itemsPerPage >= events.length
-                ? 'text-gray-400 bg-gray-800'
-                : 'text-jauneor bg-gray-800'
-                }`}
-              disabled={offset + itemsPerPage >= events.length}
-            >
-              Next
-            </button>
-          </div>
+                <h2 className="px-4 text-sm text-jauneor truncate">
+                  {event.venue.name}
+                </h2>
+              </div>
 
 
-        )
-        }
+            </Link>
+          </motion.div>
+        ))}
       </div>
     );
   };
 
+  const formatTime = (timeString) => {
+    // Split the time string into hours, minutes, and seconds
+    const [hours, minutes] = timeString.split(':').map(Number);
 
+    // Determine AM/PM
+    const period = hours >= 12 ? 'PM' : 'AM';
 
+    // Convert hours to 12-hour format
+    const formattedHours = hours % 12 || 12;
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case 'Music':
-        return 'music.svg';
-      case 'Exhibition':
-        return 'expo.svg';
-      case 'Theater':
-        return 'theatre.svg';
-      case 'Dance':
-        return 'dance.svg';
-      case 'Cinema':
-        return 'cinema.svg';
+    // Format minutes with leading zero if needed
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
-      default:
-        return 'pin2.svg';
-    }
-
-  }
-
+    // Return formatted time
+    return `${formattedHours}:${formattedMinutes} ${period}`;
+  };
 
 
   return (
-    <main >
-      <div className="justify-center bg-gray-900 ">
+    <div className=' bg-gradient-to-br from-gray-600 via-bleuC  to-bleuF'>
+      <Navbar />
 
-        <div className="relative">
-          <img
-            className='w-screen h-screen  object-cover'
-            src="https://ghnvkxjbfxberpmnzjuk.supabase.co/storage/v1/object/public/images/city/city.webp"
-            alt="City Image"
-
-          />
-
-          <div className="absolute top-1/2 left-1/2 text-4xl transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
-            <h1 className="text-black font-bold">
-              Explore, Experience, Enjoy:
-            </h1>
-            <h1 className={neon.className}>
-              Your Cultural Adventure Awaits!
-            </h1>
-          </div>
-        </div>
-
-
-
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className='flex sticky top-0 justify-center bg-gray-950 w-screen z-20'  >
-          <div className={neon.className}>
-
-
-            <h2 className="text-white text-center text-2xl  mt-4">What are you up to ?</h2>
-
-
-            <AnimatePresence>
-              {isFiltersCollapsed && (
-                <motion.div
-                  key="filters"
-                  variants={filtersVariants}
-                  initial="collapsed"
-                  animate="expanded"
-                  exit="collapsed"
-                  className="flex flex-wrap justify-center mx-2"
-                >              {categories.map((category, index) => (
-                  <motion.div
-                    key={category}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className=' flex justify-center mx-4'
-                  >
-
-                    <button
-                      key={category}
-                      className={`text-gray-200 flex text-center shadow-sm 
-                     shadow-black pl-2 transition-all duration-500 hover:scale-110 hover:opacity-100
-                      border-white my-1 pt-1 mb-4 ml-2 md:text-sm xl:text-xl items-center rounded-full
-                       ${selectedCategory === category ? 'shadow-md scale-125  shadow-white opacity-100' : ' opacity-80'}
-                       `}
-                      onClick={() => handleCategoryClick(category)}
-                      style={{
-                        backgroundColor: `${categoryColors[category]}`,
-
-                      }}
-                    >
-                      {category}
-                      <img src={getCategoryIcon(category)} className="w-8 h-6" />
-                    </button>
-                  </motion.div>
-                ))}
-                  <div className='flex justify-center'>
-
-                    <button
-                      className="text-gray-800 px-4  bg-gray-200 
-                    transition-transform duration-500 hover:scale-110 border-white 
-                    my-1 py-2  md:text-sm xl:text-xl flex items-center 
-                    rounded-full "
-                      onClick={() => handleCategoryClick('All')}
-                    >
-                      All
-                    </button>
-                  </div>
-
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div className="flex justify-center">
-              <button
-                className="text-gray-800 px-4  bg-gray-200 
-                  transition-transform duration-500 hover:scale-110 border-white 
-                  my-2 py-1  md:text-sm xl:text-xl flex items-center 
-                  rounded-full "
-                onClick={toggleFilters}
-              >
-                {isFiltersCollapsed ? 'Hide Filters' : 'Show Filters'}
-              </button>
+      <div className="flex p-4 mt-4 space-x-2 justify-evenly w-full">
+        {uniqueDates.sort((a, b) => new Date(a) - new Date(b)).map(date => (
+          <button
+            onClick={() => handleDateButtonClick(date)}
+            key={date}
+            className={`text-center rounded-full transition-all transition-duration-500`}
+          >
+            <div className={`text-lg rounded-full font-bold ${selectedDate === date ? 'text-bleuF bg-gray-200' : 'text-white'}`}>
+              {new Date(date).getDate() + 1}
             </div>
-
-          </div>
-
-        </motion.div>
-
-
-
-        <div className={neon.className}>
-          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Today</h2>
-        </div>
-        <ul>
-          <Carousel
-
-            responsive={responsive}
-            infinite={true}
-            autoPlaySpeed={1000}
-            keyBoardControl={true}
-            transitionDuration={500}
-            removeArrowOnDeviceType={["tablet", "mobile"]}
-          >
-            {filteredTodayEvents.map((event) => (
-              <li
-                key={event.id}
-                className="text-white
-             h-1/2 
-            items-center justify-center mx-3  my-4
-            
-            "
-              >
-                <Link className='items-center '
-                  href={{
-                    pathname: '/DetailEvent',
-                    query: { eventId: event.id },
-                  }}
-                >
-                  <div className=' rounded-md shadow-md
-              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                  >
-                    <img
-                      className="w-full h-36 object-cover rounded-t-md"
-                      src={event.image}
-                    />
-                    <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                      {event.title}
-                    </p>
-
-                    <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                      {event.category}
-                    </h2>
-                    <p className="px-4 text-sm text-gray-300">
-                      {event.dateend
-                        ? formatDate(event.datebegin)
-                        : `${formatDate(event.datebegin)} - ${formatDate(
-                          event.dateend
-                        )}`}
-                    </p>
-                    <p className="px-4 text-sm text-bleuC truncate">
-                      {event.venue.name}
-                    </p>
-
-                  </div>
-
-
-                </Link>
-              </li>
-            ))}
-          </Carousel>
-
-        </ul>
-
-        <div className={neon.className}>
-          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Tomorrow</h2>
-        </div>
-        <ul>
-          <Carousel
-
-            responsive={responsive}
-            infinite={true}
-            autoPlaySpeed={1000}
-            keyBoardControl={true}
-            transitionDuration={500}
-            removeArrowOnDeviceType={["tablet", "mobile"]}
-          >
-            {filteredTomorrowEvents.map((event) => (
-              <li
-                key={event.id}
-                className="text-white
-             h-1/2 
-            items-center justify-center mx-3  my-4
-            
-            "
-              >
-                <Link className='items-center '
-                  href={{
-                    pathname: '/DetailEvent',
-                    query: { eventId: event.id },
-                  }}
-                >
-                  <div className=' rounded-md shadow-md
-              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                  >
-                    <img
-                      className="w-full h-36 object-cover rounded-t-md"
-                      src={event.image}
-                    />
-                    <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                      {event.title}
-                    </p>
-
-                    <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                      {event.category}
-                    </h2>
-                    <p className="px-4 text-sm text-gray-300">
-                      {event.dateend
-                        ? formatDate(event.datebegin)
-                        : `${formatDate(event.datebegin)} - ${formatDate(
-                          event.dateend
-                        )}`}
-                    </p>
-                    <p className="px-4 text-sm text-bleuC truncate">
-                      {event.venue.name}
-                    </p>
-
-                  </div>
-
-
-                </Link>
-              </li>
-            ))}
-          </Carousel>
-
-        </ul>
-
-
-        <div className={neon.className}>
-          <h2 className="text-white text-center font-bold tracking-wider text-4xl m-8">Later</h2>
-        </div>
-        <ul>
-          <Carousel
-
-            responsive={responsive}
-            infinite={true}
-            autoPlaySpeed={1000}
-            keyBoardControl={true}
-            transitionDuration={500}
-            removeArrowOnDeviceType={["tablet", "mobile"]}
-          >
-            {filteredFutureEvents.map((event) => (
-              <li
-                key={event.id}
-                className="text-white
-             h-1/2 
-            items-center justify-center mx-3  my-4
-            
-            "
-              >
-                <Link className='items-center '
-                  href={{
-                    pathname: '/DetailEvent',
-                    query: { eventId: event.id },
-                  }}
-                >
-                  <div className=' rounded-md shadow-md
-              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                  >
-                    <img
-                      className="w-full h-36 object-cover rounded-t-md"
-                      src={event.image}
-                    />
-                    <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                      {event.title}
-                    </p>
-
-                    <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                      {event.category}
-                    </h2>
-                    <p className="px-4 text-sm text-gray-300">
-                      {event.dateend
-                        ? formatDate(event.datebegin)
-                        : `${formatDate(event.datebegin)} - ${formatDate(
-                          event.dateend
-                        )}`}
-                    </p>
-                    <p className="px-4 text-sm text-bleuC truncate">
-                      {event.venue.name}
-                    </p>
-
-                  </div>
-
-
-                </Link>
-              </li>
-            ))}
-          </Carousel>
-
-        </ul>
+            <div className={`text-lg  ${selectedDate === date ? 'text-white font-bold' : 'text-gray-200'}`}>
+              {formatDate(date)}
+            </div>
+          </button>
+        ))}
 
       </div>
-      <DynamicMap />
-    </main >
-  )
-}
+
+      <EventGroup events={events.filter(event => event.datebegin === selectedDate)} />
+    </div>
+  );
+};
+
+export default EventsByDate;

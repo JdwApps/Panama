@@ -12,8 +12,8 @@ import "react-multi-carousel/lib/styles.css";
 const responsive = {
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-    items: 3,
-    slidesToSlide: 3 // optional, default to 1.
+    items: 4,
+    slidesToSlide: 4 // optional, default to 1.
   },
   tablet: {
     breakpoint: { max: 1024, min: 464 },
@@ -53,6 +53,11 @@ const DetailEvent = () => {
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
         // Fetch event data from Supabase using eventId
         const { data: eventData, error: eventError } = await supabase
           .from('events')
@@ -71,6 +76,7 @@ const DetailEvent = () => {
             .from('venues')
             .select('*')
             .eq('id', eventData.venue_id)
+
             .single();
 
           if (venueError) {
@@ -85,6 +91,8 @@ const DetailEvent = () => {
             .from('events')
             .select('*')
             .eq('category', eventData.category)
+            .or(`datebegin.lte.${formattedDate},dateend.gte.${formattedDate}`)
+            .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
             .order('datebegin', { ascending: true })
             .limit(4);
 
@@ -100,6 +108,8 @@ const DetailEvent = () => {
             .from('events')
             .select('*')
             .eq('venue_id', eventData.venue_id)
+            .or(`datebegin.lte.${formattedDate},dateend.gte.${formattedDate}`)
+            .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
             .limit(4);
 
           if (venueEventsError) {
@@ -120,71 +130,6 @@ const DetailEvent = () => {
   if (!eventData || !venueData || !venueEvents) {
     return <p>Loading...</p>; // Add loading state or component
   }
-
-
-  const RenderEventsList = (events, currentEventId) => {
-    const filteredEvents = events.filter((event) => event.id !== currentEventId);
-
-    return (
-      <div>
-        <FlipMove
-          className="justify-center flex flex-wrap"
-          maintainContainerHeight='true'
-          duration={600}
-          staggerDurationBy={20}
-        >
-          {filteredEvents.map((event) => (
-            <li
-              key={event.id}
-              className="text-white w-2/5 md:w-1/5 
-             h-1/2 
-            items-center justify-center lg:w-1/5 mx-3  my-4
-            
-            "
-            >
-              <Link className='items-center '
-                href={{
-                  pathname: '/DetailEvent',
-                  query: { eventId: event.id },
-                }}
-              >
-                <div className=' rounded-md shadow-md
-              transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                >
-                  <img
-                    className="w-full h-36 object-cover rounded-t-md"
-                    src={event.image}
-                  />
-                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                    {event.title}
-                  </p>
-
-                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                    {event.category}
-                  </h2>
-                  <p className="px-4 text-sm text-gray-300">
-                    {event.dateend
-                      ? formatDate(event.datebegin)
-                      : `${formatDate(event.datebegin)} - ${formatDate(
-                        event.dateend
-                      )}`}
-                  </p>
-
-
-                </div>
-
-
-              </Link>
-            </li>
-          ))}
-
-        </FlipMove>
-
-      </div>
-    );
-  };
-
-
 
   const categoryColors = {
     Music: '#d3c858ff',
@@ -223,7 +168,7 @@ const DetailEvent = () => {
     return date.toLocaleDateString('en-US', options);
   };
   return (
-    <div className='bg-gray-900  w-screen'>
+    <div className=' bg-gradient-to-b from-gray-900 to-blue-900  w-screen'>
       <div className='w-4/5 bg-gray-950 h-3/4 m-auto'>
         <p style={{ backgroundColor: `${categoryColors[eventData.category]}` }}
           className="flex items-center justify-between w-full px-4 py-4 text-2xl font-bold">
@@ -271,6 +216,7 @@ const DetailEvent = () => {
 
       <ul>
         <Carousel
+          className='justify-center'
 
           responsive={responsive}
           infinite={true}
@@ -279,13 +225,12 @@ const DetailEvent = () => {
           transitionDuration={500}
           removeArrowOnDeviceType={["tablet", "mobile"]}
         >
- {relatedEvents.map((event) => (
+          {relatedEvents.map((event) => (
             <li
               key={event.id}
               className="text-white 
              h-1/2 
             items-center justify-center mx-3  my-4
-            
             "
             >
               <Link className='items-center '
@@ -329,61 +274,62 @@ const DetailEvent = () => {
       </ul>
       <h3 className="text-white text-center font-bold tracking-wider text-4xl m-8">Other events at  {venueData.name} :</h3>
       <ul>
-      <Carousel
+        <Carousel
+          className='justify-center'
 
-responsive={responsive}
-infinite={true}
-autoPlaySpeed={1000}
-keyBoardControl={true}
-transitionDuration={500}
-removeArrowOnDeviceType={["tablet", "mobile"]}
->
-{relatedEvents.map((event) => (
-  <li
-    key={event.id}
-    className="text-white
+          responsive={responsive}
+          infinite={true}
+          autoPlaySpeed={1000}
+          keyBoardControl={true}
+          transitionDuration={500}
+          removeArrowOnDeviceType={["tablet", "mobile"]}
+        >
+          {venueEvents.map((event) => (
+            <li
+              key={event.id}
+              className="text-white
    h-1/2 
   items-center justify-center mx-3  my-4
   
   "
-  >
-    <Link className='items-center '
-      href={{
-        pathname: '/DetailEvent',
-        query: { eventId: event.id },
-      }}
-    >
-      <div className=' rounded-md shadow-md
+            >
+              <Link className='items-center '
+                href={{
+                  pathname: '/DetailEvent',
+                  query: { eventId: event.id },
+                }}
+              >
+                <div className=' rounded-md shadow-md
     transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-      >
-        <img
-          className="w-full h-36 object-cover rounded-t-md"
-          src={event.image}
-        />
-        <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-          {event.title}
-        </p>
+                >
+                  <img
+                    className="w-full h-36 object-cover rounded-t-md"
+                    src={event.image}
+                  />
+                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                    {event.title}
+                  </p>
 
-        <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-          {event.category}
-        </h2>
-        <p className="px-4 text-sm text-gray-300">
-          {event.dateend
-            ? formatDate(event.datebegin)
-            : `${formatDate(event.datebegin)} - ${formatDate(
-              event.dateend
-            )}`}
-        </p>
-
-
-      </div>
+                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
+                    {event.category}
+                  </h2>
+                  <p className="px-4 text-sm text-gray-300">
+                    {event.dateend
+                      ? formatDate(event.datebegin)
+                      : `${formatDate(event.datebegin)} - ${formatDate(
+                        event.dateend
+                      )}`}
+                  </p>
 
 
-    </Link>
-  </li>
-))}
+                </div>
 
-</Carousel>
+
+              </Link>
+            </li>
+          ))}
+
+        </Carousel>
 
       </ul>
     </div>
