@@ -8,21 +8,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        jaune: '#d3c858ff', 
-        anis: '#78b23aff', 
-        foret: '#2f9543ff', 
-        turquoise: '#278d6cff', 
-        bleu: '#3779a6ff', 
-        marine: '#4654c8ff', 
-        violet: '#7c39bfff', 
-        rose: '#b64481ff', 
-        rouge: '#ae343eff', 
-        sanguine: '#c0733dff', 
-        orange: '#bc8438ff', 
-        bleuC:"#00b6e4ff",
-        jauneor:"#ffc107",
-        bleuF:"#181d3bff",
-        
+        Music: '#58508d',
+        Exhibition: '#8a508f',
+        Theater: '#bc5090',
+        Dance: '#de5a79',
+        Cinema: '#ff6361',
+        Kids: '#ff8531',
+        Sports: '#ffa600',
+        Workshop: '#003f5c',
+        bleuC: "#00b6e4ff",
+        jauneor: "#ffc107",
+        bleuF: "#181d3bff",
+
       },
     },
   },

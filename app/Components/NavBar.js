@@ -3,6 +3,10 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMap, faSearch } from '@fortawesome/free-solid-svg-icons';
+import  {montez} from '../fonts';
+import localFont from 'next/font/local'
+const panama = localFont({ src: '../Panama.ttf' })
+
 const Navbar = () => {
   const [active, setActive] = useState(null);
 
@@ -11,8 +15,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className='space-x-8 w-full bg-gray-950 bg-opacity-40'>
-      <div className='flex p-4 justify-between items-center'>
+    <nav className='space-x-8 w-full bg-gray-950 bg-opacity-60'>
+      <div className='flex p-4 justify-evenly items-center'>
       <motion.div
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
@@ -20,8 +24,10 @@ const Navbar = () => {
         onClick={() => handleSetActive('home')}
 
       >
-        <Link href="/" className='text-gray-200 text-xl'>
+        <Link href="/" className=' text-white text-4xl'>
+          <div className={panama.className}>
           Xopa
+          </div>
         </Link>
       </motion.div>
       <motion.div
@@ -30,8 +36,8 @@ const Navbar = () => {
         className={`nav-item ${active === 'map' ? 'active' : ''}`}
         onClick={() => handleSetActive('map')}
       >
-        <Link href="/map">
-          <FontAwesomeIcon icon={faMap} className='text-white text-xl' />
+        <Link href="/Map">
+          <FontAwesomeIcon icon={faMap} className='text-white text-3xl' />
         </Link>
       </motion.div>
       <motion.div
@@ -41,7 +47,7 @@ const Navbar = () => {
         onClick={() => handleSetActive('search')}
       >
         <Link href="/search">
-          <FontAwesomeIcon icon={faSearch} className='text-white text-xl' />
+          <FontAwesomeIcon icon={faSearch} className='text-white text-3xl' />
 
         </Link>
       </motion.div>

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -14,6 +14,7 @@ const EventsByDate = () => {
   const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
   const supabase = createClient(supabaseUrl, supabaseKey);
+  const bottomRef = useRef(null); // Create a ref for the bottom scrollable div
 
   const categoryColors = {
     Music: '#58508d',
@@ -23,9 +24,7 @@ const EventsByDate = () => {
     Cinema: '#ff6361',
     Kids: '#ff8531',
     Sports: '#ffa600',
-
     Workshop: '#003f5c',
-
   };
 
   useEffect(() => {
@@ -78,6 +77,9 @@ const EventsByDate = () => {
 
   const handleDateButtonClick = (date) => {
     setSelectedDate(date);
+    if (bottomRef.current) {
+      bottomRef.current.scrollTo({ top: 0 }); // Scroll to the top of the bottom scrollable part
+    }
   };
 
   const formatDate = (dateString) => {
@@ -87,6 +89,9 @@ const EventsByDate = () => {
     return date.toLocaleDateString('en-US', options);
   };
 
+  if (events.length == 0) {
+    return <p>Loading...</p>; // Add loading state or component
+  }
 
   const EventGroup = ({ events }) => {
     // Check if events is undefined or null, and return a message if it is
@@ -97,7 +102,7 @@ const EventsByDate = () => {
 
     // Once events is populated, map over it and render event details
     return (
-      <div>
+      <div className='flex  flex-wrap items-center justify-center'>
         {filteredEvents.map((event, index) => (
           <motion.div
             key={event.id}
@@ -105,7 +110,7 @@ const EventsByDate = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.8, delay: index * 0.1 }}
-            className="text-white items-center justify-center m-8"
+            className="text-white items-center mx-4 w-5/6 md:w-2/5 justify-center mb-8"
           >
             <Link className='items-center '
               href={{
@@ -113,7 +118,7 @@ const EventsByDate = () => {
                 query: { eventId: event.id },
               }}
             >
-              <div className='rounded-xl shadow-md transition-transform bg-opacity-60 transform-gpu hover:scale-105 pb-2 bg-gray-950 relative'>
+              <div className='rounded-xl shadow-md  bg-opacity-60  pb-2 bg-gray-950 relative'>
                 {/* Category sticker */}
                 <div
                   style={{
@@ -175,28 +180,33 @@ const EventsByDate = () => {
 
 
   return (
-    <div className=' bg-gradient-to-br from-gray-600 via-bleuC  to-bleuF'>
-      <Navbar />
+    <div className='min-h-screen bg-gradient-to-br from-Workshop via-Exhibition to-Cinema'>
+      <div className='fixed inset-x-0 top-0 h-40 z-50'>
+        <Navbar />
 
-      <div className="flex p-4 mt-4 space-x-2 justify-evenly w-full">
-        {uniqueDates.sort((a, b) => new Date(a) - new Date(b)).map(date => (
-          <button
-            onClick={() => handleDateButtonClick(date)}
-            key={date}
-            className={`text-center rounded-full transition-all transition-duration-500`}
-          >
-            <div className={`text-lg rounded-full font-bold ${selectedDate === date ? 'text-bleuF bg-gray-200' : 'text-white'}`}>
-              {new Date(date).getDate() + 1}
-            </div>
-            <div className={`text-lg  ${selectedDate === date ? 'text-white font-bold' : 'text-gray-200'}`}>
-              {formatDate(date)}
-            </div>
-          </button>
-        ))}
+        <div className="flex bg-bleuF px-4 py-4 space-x-2 justify-evenly w-full">
+          {uniqueDates.sort((a, b) => new Date(a) - new Date(b)).map(date => (
+            <button
+              onClick={() => handleDateButtonClick(date)}
+              key={date}
+              className={`text-center rounded-full transition-all transition-duration-500`}
+            >
+              <div className={`text-lg  ${selectedDate === date ? 'text-white font-bold' : 'text-gray-200'}`}>
+                {formatDate(date)}
+              </div>
+              <div className={`text-lg rounded-full font-bold ${selectedDate === date ? 'text-bleuF bg-gray-200' : 'text-white'}`}>
+                {new Date(date).getDate() + 1}
+              </div>
 
+            </button>
+          ))}
+
+        </div>
       </div>
 
-      <EventGroup events={events.filter(event => event.datebegin === selectedDate)} />
+      <div className="overflow-y-auto   pt-48 max-h-screen" ref={bottomRef}>
+        <EventGroup events={events.filter(event => event.datebegin === selectedDate)} />
+      </div>
     </div>
   );
 };

@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import FlipMove from 'react-flip-move';
 import Link from 'next/link';
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-
+import Image from 'next/image';
+import NavBar from '../Components/NavBar';
+import dynamic from 'next/dynamic';
 
 const responsive = {
   desktop: {
@@ -36,6 +37,10 @@ const DetailEvent = () => {
   const queryParams = useSearchParams();
 
 
+  const VenueMap = dynamic(
+    () => import('../Components/VenueMap'),
+    { ssr: false }
+  );
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -93,6 +98,7 @@ const DetailEvent = () => {
             .eq('category', eventData.category)
             .or(`datebegin.lte.${formattedDate},dateend.gte.${formattedDate}`)
             .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
+            .not('id', 'eq', eventData.id)
             .order('datebegin', { ascending: true })
             .limit(4);
 
@@ -110,6 +116,8 @@ const DetailEvent = () => {
             .eq('venue_id', eventData.venue_id)
             .or(`datebegin.lte.${formattedDate},dateend.gte.${formattedDate}`)
             .or(`datebegin.gte.${formattedDate},dateend.gte.${formattedDate}`)
+            .not('id', 'eq', eventData.id)
+            .order('datebegin', { ascending: true })
             .limit(4);
 
           if (venueEventsError) {
@@ -168,32 +176,41 @@ const DetailEvent = () => {
     return date.toLocaleDateString('en-US', options);
   };
   return (
-    <div className=' bg-gradient-to-b from-gray-900 to-blue-900  w-screen'>
-      <div className='w-4/5 bg-gray-950 h-3/4 m-auto'>
-        <p style={{ backgroundColor: `${categoryColors[eventData.category]}` }}
-          className="flex items-center justify-between w-full px-4 py-4 text-2xl font-bold">
-          {eventData.category}
-          <img src={getCategoryIcon(eventData.category)} className="w-10 h-10 ml-2" />
-        </p>
-        <div className='h-screen'>
-          <img
-            className=" object-contain h-2/3 w-full rounded-md"
-            src={eventData.image}
-          />
-          <h2 className="px-8 text-white mt-8 font-bold text-6xl">{eventData.title}</h2>
+    <div className=' bg-gradient-to-br from-Music via-Exhibition to-Dance'>
+      <NavBar />
+      <div className=''>
+        <div className='  relative'>
+          <div
+            style={{
+              backgroundColor: `${categoryColors[eventData.category]}`,
+
+            }}
+            className="absolute border-1 border-gray-200
+                   top-2 left-2 px-2 py-1 bg-bleuC text-gray-200 text-sm font-bold rounded">
+            {eventData.category}
+          </div>
+
+          <div className='h-72'>
+            <Image
+              className="h-full w-full object-cover  "
+              src={eventData.image}
+              alt={eventData.title}
+              width={300} // Replace with the desired width
+              height={100} // Replace with the desired height
+            />
+          </div>
         </div>
 
-        <p className="px-8 overflow-hidden mb-8 text-gray-300">{eventData.description}</p>
+        <p className="px-8 overflow-hidden mt-8 text-4xl font-bold mb-8 text-gray-300">{eventData.title}</p>
+        <p className="px-8 overflow-hidden mb-4 text-gray-300">{eventData.description}</p>
         <p className="px-8  text-xl text-gray-200">
           {eventData.dateend
             ? formatDate(eventData.datebegin)
-            : `${formatDate(eventData.datebegin)} - ${formatDate(
-              eventData.dateend
-            )}`}
+            : `${formatDate(eventData.datebegin)} - ${formatDate(eventData.dateend)}`}
         </p>
 
 
-        <p className="px-8 text-xl mb-8 text-gray-100">
+        <p className="px-8 text-xl mb-4 text-gray-100">
           {new Date(0, 0, 0, eventData.hourbegin.split(':')[0], eventData.hourbegin.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
           - {new Date(0, 0, 0, eventData.hourend.split(':')[0], eventData.hourend.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
         </p>
@@ -203,135 +220,175 @@ const DetailEvent = () => {
             query: { venueId: venueData.id },
           }}
         >
-          <p className="px-8 text-bleuC"> {venueData.name}</p>
+          <p className="px-8 text-jauneor"> {venueData.name}</p>
         </Link>
         <p className="px-8 pb-8 text-gray-200"> {venueData.address}</p>
-
+       <div className='justify-center mb-8 flex'>
+       <VenueMap  latitude={venueData.latitude} longitude={venueData.longitude} />
+      </div>
       </div>
 
       {/* Display related events */}
-      <h3 className="text-white text-center font-bold tracking-wider text-4xl m-8">Other {eventData.category} events:</h3>
 
 
+      {relatedEvents.length > 0 && (
+        <div className='pb-8'>
+          <h2
+            className='text-center text-gray-200 text-2xl px-8 pt-8 pb-4'
+          >
+            Other {eventData.category} events :
+          </h2>
+          <ul className=''>
+            <Carousel
 
-      <ul>
-        <Carousel
-          className='justify-center'
-
-          responsive={responsive}
-          infinite={true}
-          autoPlaySpeed={1000}
-          keyBoardControl={true}
-          transitionDuration={500}
-          removeArrowOnDeviceType={["tablet", "mobile"]}
-        >
-          {relatedEvents.map((event) => (
-            <li
-              key={event.id}
-              className="text-white 
-             h-1/2 
-            items-center justify-center mx-3  my-4
-            "
+              responsive={responsive}
+              infinite={true}
+              autoPlaySpeed={1000}
+              keyBoardControl={true}
+              transitionDuration={500}
+              removeArrowOnDeviceType={["tablet", "mobile"]}
             >
-              <Link className='items-center '
-                href={{
-                  pathname: '/DetailEvent',
-                  query: { eventId: event.id },
-                }}
-              >
-                <div className=' rounded-md shadow-md
+              {relatedEvents.map((event) => (
+                <li
+                  key={event.id}
+                  className="text-white w-4/5 m-auto"
+                >
+                  <Link className='items-center '
+                    href={{
+                      pathname: '/DetailEvent',
+                      query: { eventId: event.id },
+                    }}
+                  >
+                    <div className=' rounded-md shadow-md
               transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
-                >
-                  <img
-                    className="w-full h-36 object-cover rounded-t-md"
-                    src={event.image}
-                  />
-                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                    {event.title}
-                  </p>
+                    >
+                      <div className='  relative'>
+                        <div
+                          style={{
+                            backgroundColor: `${categoryColors[event.category]}`,
 
-                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                    {event.category}
-                  </h2>
-                  <p className="px-4 text-sm text-gray-300">
-                    {event.dateend
-                      ? formatDate(event.datebegin)
-                      : `${formatDate(event.datebegin)} - ${formatDate(
-                        event.dateend
-                      )}`}
-                  </p>
+                          }}
+                          className="absolute border-1 border-gray-200
+                   top-2 left-2 px-2 py-1 bg-bleuC text-gray-200 text-sm font-bold rounded">
+                          {event.category}
+                        </div>
+
+                        <div className='h-44 '>
+                          <Image
+                            className="h-full object-cover rounded-t-xl "
+                            src={event.image}
+                            alt={event.title}
+                            width={300} // Replace with the desired width
+                            height={100} // Replace with the desired height
+                          />
+                        </div>
+                      </div>
+
+                      <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                        {event.title}
+                      </p>
 
 
-                </div>
+                      <p className="px-4 text-sm text-gray-300">
+                        {event.dateend
+                          ? formatDate(event.datebegin)
+                          : `${formatDate(event.datebegin)} - ${formatDate(
+                            event.dateend
+                          )}`}
+                      </p>
 
 
-              </Link>
-            </li>
-          ))}
+                    </div>
 
-        </Carousel>
 
-      </ul>
-      <h3 className="text-white text-center font-bold tracking-wider text-4xl m-8">Other events at  {venueData.name} :</h3>
-      <ul>
-        <Carousel
-          className='justify-center'
+                  </Link>
+                </li>
+              ))}
 
-          responsive={responsive}
-          infinite={true}
-          autoPlaySpeed={1000}
-          keyBoardControl={true}
-          transitionDuration={500}
-          removeArrowOnDeviceType={["tablet", "mobile"]}
-        >
-          {venueEvents.map((event) => (
-            <li
-              key={event.id}
-              className="text-white
-   h-1/2 
-  items-center justify-center mx-3  my-4
-  
-  "
+            </Carousel>
+
+          </ul>
+        </div>
+      )}
+      {venueEvents.length > 0 && (
+        <div className='pb-12'>
+
+          <h2
+            className='text-center text-gray-200 text-2xl px-8 pt-8 pb-4'
+          >
+            Other events at {venueData.name} :
+          </h2>
+          <ul className=''>
+            <Carousel
+
+              responsive={responsive}
+              infinite={true}
+              autoPlaySpeed={1000}
+              keyBoardControl={true}
+              transitionDuration={500}
+              removeArrowOnDeviceType={["tablet", "mobile"]}
             >
-              <Link className='items-center '
-                href={{
-                  pathname: '/DetailEvent',
-                  query: { eventId: event.id },
-                }}
-              >
-                <div className=' rounded-md shadow-md
-    transition-transform transform-gpu hover:scale-105 pb-2 bg-gray-950'
+              {venueEvents.map((event) => (
+                <li
+                  key={event.id}
+                  className="text-white w-4/5 m-auto"
                 >
-                  <img
-                    className="w-full h-36 object-cover rounded-t-md"
-                    src={event.image}
-                  />
-                  <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
-                    {event.title}
-                  </p>
+                  <Link className='items-center '
+                    href={{
+                      pathname: '/DetailEvent',
+                      query: { eventId: event.id },
+                    }}
+                  >
+                    <div className=' rounded-md shadow-md
+    transition-transform transform-gpu hover:scale-105  bg-gray-950'
+                    >
+                      <div className='  relative'>
+                        <div
+                          style={{
+                            backgroundColor: `${categoryColors[event.category]}`,
 
-                  <h2 className="px-4  text-sm font-bold text-gray-300" style={{ color: `${categoryColors[event.category]}` }}>
-                    {event.category}
-                  </h2>
-                  <p className="px-4 text-sm text-gray-300">
-                    {event.dateend
-                      ? formatDate(event.datebegin)
-                      : `${formatDate(event.datebegin)} - ${formatDate(
-                        event.dateend
-                      )}`}
-                  </p>
+                          }}
+                          className="absolute border-1 border-gray-200
+                   top-2 left-2 px-2 py-1 bg-bleuC text-gray-200 text-sm font-bold rounded">
+                          {event.category}
+                        </div>
+
+                        <div className='h-44'>
+                          <Image
+                            className="h-full object-cover rounded-t-xl "
+                            src={event.image}
+                            alt={event.title}
+                            width={300} // Replace with the desired width
+                            height={100} // Replace with the desired height
+                          />
+                        </div>
+                      </div>
+                      <p className="flex items-center mt-2 justify-between px-4 md:text-xl text-l font-bold truncate">
+                        {event.title}
+                      </p>
+
+                      <p className="px-4 text-sm text-gray-300">
+                        {event.dateend
+                          ? formatDate(event.datebegin)
+                          : `${formatDate(event.datebegin)} - ${formatDate(
+                            event.dateend
+                          )}`}
+                      </p>
 
 
-                </div>
+                    </div>
 
 
-              </Link>
-            </li>
-          ))}
+                  </Link>
+                </li>
+              ))}
 
-        </Carousel>
+            </Carousel>
 
-      </ul>
+          </ul>
+        </div>
+
+      )}
     </div>
   );
 };
