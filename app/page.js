@@ -17,9 +17,6 @@ const EventsByDate = () => {
   const bottomRef = useRef(null); // Create a ref for the bottom scrollable div
 
 
-  const [isMobileShareSupported, setIsMobileShareSupported] = useState(
-    typeof navigator !== "undefined" && typeof navigator.share === "function"
-  );
 
 
   const categoryColors = {
@@ -94,21 +91,10 @@ const EventsByDate = () => {
     date.setDate(date.getDate() + 1); // Adding one day to the date
     return date.toLocaleDateString('en-US', options);
   };
-  const shareEvent = async (event) => {
-    try {
-      await navigator.share({
-        title: event.title,
-        text: event.description, // You can add more details here if needed
-        url: window.location.href,
-      });
-      console.log("Event shared successfully");
-    } catch (error) {
-      console.error("Error sharing event:", error);
-    }
-  };
-  
+
+
   if (events.length == 0) {
-    return <Splash/>; // Add loading state or component
+    return <Splash />; // Add loading state or component
   }
 
   const EventGroup = ({ events }) => {
@@ -169,15 +155,7 @@ const EventsByDate = () => {
                 <h2 className="px-4 text-sm text-jauneor truncate">
                   {event.venue.name}
                 </h2>
-                {isMobileShareSupported && (
-  <button
-    className="share-button"
-    onClick={() => shareEvent(event)}
-    aria-label="Share event"
-  >
-    Share
-  </button>
-                )}
+                
               </div>
 
 

@@ -35,8 +35,22 @@ const DetailEvent = () => {
   const [venueEvents, setVenueEvents] = useState(null);
   const [relatedEvents, setRelatedEvents] = useState(null);
   const queryParams = useSearchParams();
+  const [isMobileShareSupported, setIsMobileShareSupported] = useState(
+    typeof navigator !== "undefined" && typeof navigator.share === "function"
+  );
 
-
+  const shareEvent = async (event) => {
+    try {
+      await navigator.share({
+        title: event.title,
+        text: 'Q Xopa ? Check this event coming soon in Panama City', // You can add more details here if needed
+        url: window.location.href,
+      });
+      console.log("Event shared successfully");
+    } catch (error) {
+      console.error("Error sharing event:", error);
+    }
+  };
   const VenueMap = dynamic(
     () => import('../Components/VenueMap'),
     { ssr: false }
@@ -226,6 +240,15 @@ const DetailEvent = () => {
        <div className='justify-center mb-8 flex'>
        <VenueMap  latitude={venueData.latitude} longitude={venueData.longitude} />
       </div>
+      {isMobileShareSupported && (
+                  <button
+                    className="bg-bleuF text-white font-bold"
+                    onClick={() => shareEvent(eventData)}
+                    aria-label="Share event"
+                  >
+                    Share this Event !
+                  </button>
+                )}
       </div>
 
       {/* Display related events */}
