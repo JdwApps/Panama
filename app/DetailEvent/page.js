@@ -8,6 +8,7 @@ import "react-multi-carousel/lib/styles.css";
 import Image from 'next/image';
 import NavBar from '../Components/NavBar';
 import dynamic from 'next/dynamic';
+import Splash from '../Components/Splash';
 
 const responsive = {
   desktop: {
@@ -149,7 +150,7 @@ const DetailEvent = () => {
   }, [queryParams]);
 
   if (!eventData || !venueData || !venueEvents) {
-    return <p>Loading...</p>; // Add loading state or component
+    return <Splash />; 
   }
 
   const categoryColors = {
@@ -263,7 +264,7 @@ const DetailEvent = () => {
       {relatedEvents.length > 0 && (
         <div className='pb-8'>
           <h2
-            className='text-center text-gray-200 text-2xl px-8 pt-8 pb-4'
+            className='text-center md:text-left text-gray-200 text-2xl px-8 pt-8 pb-4'
           >
             Other {eventData.category} events :
           </h2>
@@ -343,7 +344,7 @@ const DetailEvent = () => {
         <div className='pb-12'>
 
           <h2
-            className='text-center text-gray-200 text-2xl px-8 pt-8 pb-4'
+            className='text-center md:text-left text-gray-200 text-2xl px-8 pt-8 pb-4'
           >
             Other events at {venueData.name} :
           </h2>

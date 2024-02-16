@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Navbar from '../Components/NavBar';
 import dynamic from 'next/dynamic';
-
+import Splash from '../Components/Splash';
 
 const EventsByDate = () => {
     const [events, setEvents] = useState([]);
@@ -86,26 +86,9 @@ const EventsByDate = () => {
         return date.toLocaleDateString('en-US', options);
     };
 
-    const getCategoryIcon = (category) => {
-        switch (category) {
-            case 'Music':
-                return 'music.svg';
-            case 'Exhibition':
-                return 'expo.svg';
-            case 'Theater':
-                return 'theatre.svg';
-            case 'Dance':
-                return 'dance.svg';
-            case 'Cinema':
-                return 'cinema.svg';
-
-            default:
-                return 'pin2.svg';
-        }
-
-    }
+   
     if (events.length == 0) {
-        return <p>Loading...</p>; // Add loading state or component
+        return <Splash/>; // Add loading state or component
     }
     
 
@@ -128,7 +111,7 @@ const EventsByDate = () => {
 
 
     return (
-        <div className='min-h-screen bg-gradient-to-br from-Music via-Exhibition to-Dance'>
+        <div className='min-h-screen bg-gradient-to-br from-gray-900  to-blue-900'>
             <Navbar />
 
             <div className="flex px-4 my-4 space-x-2 justify-evenly w-full">

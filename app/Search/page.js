@@ -133,12 +133,12 @@ const Search = () => {
       <div className="">
  
         {notificationMessage && (
-          <p className="text-lg text-white mt-4 px-8">{notificationMessage}</p>
+          <p className="text-lg text-center text-white my-4 px-8">{notificationMessage}</p>
         )}
 
         {Object.entries(groupedEvents).map(([date, events]) => (
-          <div key={date} className="mt-8">
-            <h2 className="text-xl text-center text-white font-semibold mb-4">{formatDate(date)}</h2>
+          <div key={date} className="">
+            <h2 className="text-xl text-center bg-gray-950 bg-opacity-20 py-4 text-white font-semibold mb-8">{formatDate(date)}</h2>
             <div className='flex  flex-wrap space-x-8 items-center justify-center'>
               {events.map((event, index) => (
                 <motion.div
@@ -147,7 +147,7 @@ const Search = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
                   transition={{ duration: 0.8, delay: index * 0.1 }}
-                  className="text-white items-center  lg:w-1/4 w-5/6 md:w-2/5 justify-center mb-8"
+                  className="text-white items-center hover:scale-105  lg:w-3/8 w-5/6 md:w-2/5 justify-center mb-8"
                   >
                   <Link className='items-center '
                     href={{
@@ -167,7 +167,7 @@ const Search = () => {
                           {event.category}
                         </div>
 
-                        <div className='h-24 w-24'>
+                        <div className='h-24 w-24 lg:h-44 lg:w-44'>
                           <Image
                             className="h-full object-cover w-full rounded-tl-xl rounded-bl-xl"
                             src={event.image}
@@ -178,9 +178,12 @@ const Search = () => {
                           />
                         </div>
                       </div>
-                      <div className='w-full overflow-hidden'>
+                      <div className='w-full flex flex-col justify-center overflow-hidden'>
                         <h1 className="mt-2 px-4  text-xl font-bold">
                           {event.title}
+                        </h1>
+                        <h1 className="mt-2 px-4  text-xl ">
+                        {event.price === 0 ? 'Free' : `${event.price} $`}
                         </h1>
                         <h1 className="mt-2  px-4 text-jauneor truncate">
                           {event.venue.name}

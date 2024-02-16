@@ -27,6 +27,12 @@ export default function EventMap  ({ events, selectedDate })  {
                 return 'dance.svg';
             case 'Cinema':
                 return 'cinema.svg';
+            case 'Sports':
+                return 'sports.svg';
+            case 'Kids':
+                return 'kids.svg';
+            case 'Workshop':
+                return 'workshop.svg';
 
             default:
                 return 'pin2.svg';
@@ -46,7 +52,7 @@ export default function EventMap  ({ events, selectedDate })  {
     // Once events is populated, map over it and render event details
     return (
         <div className=''>
-            <MapContainer center={[8.96, -79.55]} zoom={13} style={{ width: '100vw', height: '65vh' }}>
+            <MapContainer center={[8.96, -79.55]} zoom={13} style={{ width: '100vw', height: '75vh' }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -83,13 +89,20 @@ export default function EventMap  ({ events, selectedDate })  {
                                     </div>
 
                                     <div className='h-24'>
+                                    <Link className='items-center '
+                                    href={{
+                                        pathname: '/DetailEvent',
+                                        query: { eventId: event.id },
+                                    }}
+                                >
                                         <Image
-                                            className="h-full w-full object-cover  "
+                                            className="h-full w-full object-cover rounded-xl  "
                                             src={event.image}
                                             alt={event.title}
                                             width={300} // Replace with the desired width
                                             height={100} // Replace with the desired height
                                         />
+                                        </Link>
                                     </div>
                                 </div>
 
@@ -97,6 +110,8 @@ export default function EventMap  ({ events, selectedDate })  {
                                 <p className='text-gray-300'>
                                 {formatDate(event.datebegin)}  {new Date(0, 0, 0, event.hourbegin.split(':')[0], event.hourbegin.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })} - {new Date(0, 0, 0, event.hourend.split(':')[0], event.hourend.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
                                 </p>
+                                <p className="  font-bold text-white">{event.price === 0 ? 'Free' : `${event.price} $`}</p>
+
                                 <p className='text-jauneor'>{event.venue.name}</p>
                                 
                                 <Link className='items-center '
@@ -106,7 +121,7 @@ export default function EventMap  ({ events, selectedDate })  {
                                     }}
                                 >
                                     <p
-                                        className="text-white bg-gray-700 px-4 py-2 rounded-md mt-2"
+                                        className="text-white bg-gray-700 px-4 text-center py-4 rounded-md mt-2"
                                     >
                                         Learn More
                                     </p>
