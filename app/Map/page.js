@@ -1,13 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Navbar from '../Components/NavBar';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import * as L from 'leaflet';
+import dynamic from 'next/dynamic';
+
 
 const EventsByDate = () => {
     const [events, setEvents] = useState([]);
@@ -16,7 +12,10 @@ const EventsByDate = () => {
     const supabaseUrl = 'https://ghnvkxjbfxberpmnzjuk.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
     const supabase = createClient(supabaseUrl, supabaseKey);
-
+    const EventMap = dynamic(
+        () => import('../Components/EventMap'),
+        { ssr: false }
+      );
     const categoryColors = {
         Music: '#58508d',
         Exhibition: '#8a508f',
@@ -108,89 +107,7 @@ const EventsByDate = () => {
     if (events.length == 0) {
         return <p>Loading...</p>; // Add loading state or component
     }
-    const EventMap = ({ events }) => {
-        // Check if events is undefined or null, and return a message if it is
-        if (!events) {
-            return <p>Loading events...</p>;
-        }
-        const filteredEvents = events.filter(event => event.datebegin === selectedDate);
-
-        // Once events is populated, map over it and render event details
-        return (
-            <div className=''>
-                <MapContainer center={[8.96, -79.55]} zoom={13} style={{ width: '100vw', height: '65vh' }}>
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    {filteredEvents.map((event) => (
-                        <Marker
-                            key={event.id}
-                            position={[event.venue.latitude, event.venue.longitude]}
-                            icon={L.icon({
-                                iconUrl: getCategoryIcon(event.category),
-                                iconSize: [42, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34],
-                            })}
-                            className="pulse fade-in"
-                        >
-                            <Popup >
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                >
-                                    <div className='  relative'>
-                                        <div
-                                            style={{
-                                                backgroundColor: `${categoryColors[event.category]}`,
-
-                                            }}
-                                            className="absolute border-1 border-gray-200
-                                            top-2 left-2 px-2 py-1 bg-bleuC text-gray-200
-                                            text-sm font-bold rounded">
-                                            {event.category}
-                                        </div>
-
-                                        <div className='h-36'>
-                                            <Image
-                                                className="h-full w-full object-cover  "
-                                                src={event.image}
-                                                alt={event.title}
-                                                width={300} // Replace with the desired width
-                                                height={100} // Replace with the desired height
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <p className="px-8 overflow-hidden mt-8 text-4xl font-bold mb-8 text-gray-300">{event.title}</p>
-                                    <p className="px-8 overflow-hidden mb-4 text-gray-300">{event.description}</p>
-                                    <p className='text-lg'>{event.venue.name}</p>
-                                    <p>
-                                        Date: {event.datebegin} - {event.dateend}
-                                    </p>
-                                    <Link className='items-center '
-                                        href={{
-                                            pathname: '/DetailEvent',
-                                            query: { eventId: event.id },
-                                        }}
-                                    >
-                                        <p
-                                            className="text-white bg-gray-700 px-4 py-2 rounded-md mt-2"
-                                        >
-                                            Learn More
-                                        </p>
-                                    </Link>
-                                </motion.div>
-                            </Popup>
-                        </Marker>
-                    ))}
-                </MapContainer>
-
-            </div>
-        );
-    };
+    
 
     const formatTime = (timeString) => {
         // Split the time string into hours, minutes, and seconds
@@ -233,7 +150,10 @@ const EventsByDate = () => {
 
             </div>
 
-            <EventMap events={events.filter(event => event.datebegin === selectedDate)} />
+            <EventMap 
+            events={events.filter(event => event.datebegin === selectedDate)}
+            selectedDate={selectedDate}
+             />
         </div>
     );
 };

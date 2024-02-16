@@ -1,0 +1,13 @@
+
+.leaflet-popup-content-wrapper {
+background-color: #181d3bff;
+}
+
+.leaflet-popup-content {
+   
+}
+
+.leaflet-popup-content p {
+    margin: 0;
+    padding:0; 
+}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Navbar from './Components/NavBar';
-
+import Splash from './Components/Splash';
 
 const EventsByDate = () => {
   const [events, setEvents] = useState([]);
@@ -15,6 +15,17 @@ const EventsByDate = () => {
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
   const supabase = createClient(supabaseUrl, supabaseKey);
   const bottomRef = useRef(null); // Create a ref for the bottom scrollable div
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false); // Set loading state to false after 2 seconds
+    }, 4000); // 2000 milliseconds = 2 seconds
+
+    return () => clearTimeout(timer); // Clear the timer if the component unmounts
+  }, []); // Empty dependency 
+
 
   const categoryColors = {
     Music: '#58508d',
@@ -89,8 +100,8 @@ const EventsByDate = () => {
     return date.toLocaleDateString('en-US', options);
   };
 
-  if (events.length == 0) {
-    return <p>Loading...</p>; // Add loading state or component
+  if (events.length == 0 && loading) {
+    return <Splash/>; // Add loading state or component
   }
 
   const EventGroup = ({ events }) => {
@@ -110,7 +121,7 @@ const EventsByDate = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.8, delay: index * 0.1 }}
-            className="text-white items-center mx-4 w-5/6 md:w-2/5 justify-center mb-8"
+            className="text-white items-center mx-4 lg:w-1/4 w-5/6 md:w-2/5 justify-center mb-8"
           >
             <Link className='items-center '
               href={{

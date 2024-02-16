@@ -14,39 +14,39 @@
   <g
      id="layer1">
     <ellipse
-       style="fill:#d3c858;stroke-width:0.103214;stroke-dasharray:0.619284, 0.619284;fill-opacity:1"
+       style="fill:#58508d;stroke-width:0.103214;stroke-dasharray:0.619284, 0.619284;fill-opacity:1"
        id="path234"
        cx="106.17744"
        cy="87.800186"
        rx="81.687431"
        ry="84.097923" />
     <path
-       style="fill:#d3c858;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001;fill-opacity:1"
+       style="fill:#58508d;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001;fill-opacity:1"
        d="m 72.911921,152.23883 c 1.740285,22.61968 29.552299,56.16764 29.552299,56.16764 0,0 30.07115,-36.28489 32.0286,-55.73868 2.05511,-20.42433 -63.155562,-20.89594 -61.580899,-0.42896 z"
        id="path398" />
     <ellipse
-       style="fill:#646464;fill-opacity:1;stroke-width:0.106399;stroke-dasharray:0.638398, 0.638398"
+       style="fill:#fff;fill-opacity:1;stroke-width:0.106399;stroke-dasharray:0.638398, 0.638398"
        id="path496"
        cx="105.98125"
        cy="87.682022"
        rx="60.549919"
        ry="64.530075" />
     <ellipse
-       style="fill:#d3c858;fill-opacity:1;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001"
+       style="fill:#58508d;fill-opacity:1;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001"
        id="path2040"
        cx="70.829247"
        cy="109.17899"
        rx="13.40151"
        ry="10.887433" />
     <ellipse
-       style="fill:#d3c858;fill-opacity:1;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001"
+       style="fill:#58508d;fill-opacity:1;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001"
        id="ellipse2042"
        cx="126.48384"
        cy="95.904213"
        rx="13.40151"
        ry="10.887433" />
     <path
-       style="fill:#d3c858;fill-opacity:1;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001"
+       style="fill:#58508d;fill-opacity:1;stroke-width:0.1;stroke-dasharray:0.600001, 0.600001"
        d="M 84.237045,109.94694 83.746949,70.028592 135.6307,59.153664 l 0.90035,34.367383 3.24966,3.60405 c 0,0 0.33699,-55.382547 -2.40029,-57.567669 -2.73729,-2.185123 -49.942611,7.066337 -55.961257,14.77097 -1.474158,1.88711 -1.30752,10.957112 -1.278033,11.798685 0.432074,12.331601 0.599808,40.078007 0.599808,40.078007 z"
        id="path2098" />
   </g>

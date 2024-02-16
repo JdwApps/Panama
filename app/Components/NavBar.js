@@ -15,7 +15,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className='space-x-8 w-full bg-gray-950 bg-opacity-60'>
+    <nav className='space-x-8 w-full bg-bleuF bg-opacity-40'>
       <div className='flex p-4 justify-evenly items-center'>
       <motion.div
         whileHover={{ scale: 1.1 }}
