@@ -145,17 +145,20 @@ const EventsByDate = () => {
                   />
                 </div>
 
-                <h1 className="flex items-center mt-2 justify-between px-4 md:text-xl text-xl font-bold truncate">
+                <h1 className="flex mt-2 n px-4 md:text-xl text-xl font-bold truncate">
                   {event.title}
                 </h1>
-                <h1 className="flex text-gray-200 items-center text-sm justify-between px-4  truncate">
+                <h1 className=" text-gray-200  text-sm  px-4  truncate">
                   {formatTime(event.hourbegin)}
+                </h1>
+                <h1 className=" text-gray-200  text-sm  px-4  truncate">
+                  {event.price === 0 ? 'Free' : `${event.price} $`}
                 </h1>
 
                 <h2 className="px-4 text-sm text-jauneor truncate">
                   {event.venue.name}
                 </h2>
-                
+
               </div>
 
 

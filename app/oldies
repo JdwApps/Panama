@@ -1,0 +1,22 @@
+
+  const categories = [
+    'Music',
+    'Exhibition',
+    'Theater',
+    'Dance',
+    'Cinema',
+    'Kids',
+    'Sports',
+    'Workshop'
+  ];
+
+  </div>
+  {isMobileShareSupported && (
+              <button
+                className="bg-bleuF text-white font-bold"
+                onClick={() => shareEvent(eventData)}
+                aria-label="Share event"
+              >
+                Share this Event !
+              </button>
+            )}

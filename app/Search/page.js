@@ -139,7 +139,7 @@ const Search = () => {
         {Object.entries(groupedEvents).map(([date, events]) => (
           <div key={date} className="mt-8">
             <h2 className="text-xl text-center text-white font-semibold mb-4">{formatDate(date)}</h2>
-            <div className='flex  flex-wrap items-center justify-center'>
+            <div className='flex  flex-wrap space-x-8 items-center justify-center'>
               {events.map((event, index) => (
                 <motion.div
                   key={event.id}
@@ -169,7 +169,7 @@ const Search = () => {
 
                         <div className='h-24 w-24'>
                           <Image
-                            className="h-full object-cover w-full rounded-t-xl"
+                            className="h-full object-cover w-full rounded-tl-xl rounded-bl-xl"
                             src={event.image}
                             alt={event.title}
                             width={300} // Replace with the desired width

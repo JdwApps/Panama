@@ -1,5 +1,4 @@
 'use client'
-// pages/DetailEvent.js
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
@@ -215,40 +214,47 @@ const DetailEvent = () => {
           </div>
         </div>
 
-        <p className="px-8 overflow-hidden mt-8 text-4xl font-bold mb-8 text-gray-300">{eventData.title}</p>
-        <p className="px-8 overflow-hidden mb-4 text-gray-300">{eventData.description}</p>
-        <p className="px-8  text-xl text-gray-200">
+        <p className="px-8 md:px-12 lg:px-16 overflow-hidden mt-8 text-4xl font-bold mb-8 text-gray-300">{eventData.title}</p>
+        <p className="px-8 md:px-12 lg:px-16 overflow-hidden mb-4 text-gray-300">{eventData.description}</p>
+        <p className="px-8 md:px-12 lg:px-16  text-xl text-gray-200">
           {eventData.dateend
             ? formatDate(eventData.datebegin)
             : `${formatDate(eventData.datebegin)} - ${formatDate(eventData.dateend)}`}
         </p>
 
 
-        <p className="px-8 text-xl mb-4 text-gray-100">
-          {new Date(0, 0, 0, eventData.hourbegin.split(':')[0], eventData.hourbegin.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
-          - {new Date(0, 0, 0, eventData.hourend.split(':')[0], eventData.hourend.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
+        <p className="px-8 md:px-12 lg:px-16 text-xl mb-4 text-gray-100">
+          {new Date(0, 0, 0, eventData.hourbegin.split(':')[0], eventData.hourbegin.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })} - {new Date(0, 0, 0, eventData.hourend.split(':')[0], eventData.hourend.split(':')[1]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
         </p>
+                <p className="px-8 md:px-12 lg:px-16 overflow-hidden mb-4 text-gray-300">{eventData.price === 0 ? 'Free' : `${eventData.price} $`}</p>
+
         <Link className='items-center '
           href={{
             pathname: '/Venue',
             query: { venueId: venueData.id },
           }}
         >
-          <p className="px-8 text-jauneor"> {venueData.name}</p>
+          <p className="px-8 md:px-12 lg:px-16 text-jauneor"> {venueData.name}</p>
         </Link>
-        <p className="px-8 pb-8 text-gray-200"> {venueData.address}</p>
-       <div className='justify-center mb-8 flex'>
-       <VenueMap  latitude={venueData.latitude} longitude={venueData.longitude} />
-      </div>
-      {isMobileShareSupported && (
-                  <button
-                    className="bg-bleuF text-white font-bold"
-                    onClick={() => shareEvent(eventData)}
-                    aria-label="Share event"
-                  >
-                    Share this Event !
-                  </button>
-                )}
+        <p className="px-8 md:px-12 lg:px-16 pb-8 text-gray-200"> {venueData.address}</p>
+        {isMobileShareSupported && (
+
+          <div className='flex justify-center'>
+            <button
+              className="bg-bleuC rounded-xl p-4 mb-8 text-white text-xl font-bold"
+              onClick={() => shareEvent(eventData)}
+              aria-label="Share event"
+            >
+              Share this Event !
+            </button>
+
+          </div>
+        )}
+        <div className='justify-center mb-8 flex'>
+          <VenueMap latitude={venueData.latitude} longitude={venueData.longitude} />
+        </div>
+
+
       </div>
 
       {/* Display related events */}
