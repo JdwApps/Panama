@@ -15,16 +15,9 @@ const EventsByDate = () => {
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobnZreGpiZnhiZXJwbW56anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1OTM1NTksImV4cCI6MjAxMzE2OTU1OX0.9BNmWeaFhZD6GbwrNkd_BBzFJlLCMEGVmKEt6OtQmdA';
   const supabase = createClient(supabaseUrl, supabaseKey);
   const bottomRef = useRef(null); // Create a ref for the bottom scrollable div
-  const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false); // Set loading state to false after 2 seconds
-    }, 4000); // 2000 milliseconds = 2 seconds
 
-    return () => clearTimeout(timer); // Clear the timer if the component unmounts
-  }, []); // Empty dependency 
 
 
   const categoryColors = {
@@ -100,7 +93,7 @@ const EventsByDate = () => {
     return date.toLocaleDateString('en-US', options);
   };
 
-  if (events.length == 0 && loading) {
+  if (events.length == 0) {
     return <Splash/>; // Add loading state or component
   }
 
@@ -173,25 +166,16 @@ const EventsByDate = () => {
   };
 
   const formatTime = (timeString) => {
-    // Split the time string into hours, minutes, and seconds
     const [hours, minutes] = timeString.split(':').map(Number);
-
-    // Determine AM/PM
     const period = hours >= 12 ? 'PM' : 'AM';
-
-    // Convert hours to 12-hour format
     const formattedHours = hours % 12 || 12;
-
-    // Format minutes with leading zero if needed
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-
-    // Return formatted time
     return `${formattedHours}:${formattedMinutes} ${period}`;
   };
 
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-Workshop via-Exhibition to-Cinema'>
+    <div className='min-h-screen bg-gradient-to-br from-gray-900  to-blue-900'>
       <div className='fixed inset-x-0 top-0 h-40 z-50'>
         <Navbar />
 

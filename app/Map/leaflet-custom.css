@@ -11,3 +11,6 @@ background-color: #181d3bff;
     margin: 0;
     padding:0; 
 }
+.leaflet-container {
+    z-index: 1; /* Set a lower z-index for the Leaflet map */
+  }

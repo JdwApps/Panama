@@ -176,7 +176,7 @@ const DetailEvent = () => {
     return date.toLocaleDateString('en-US', options);
   };
   return (
-    <div className=' bg-gradient-to-br from-Music via-Exhibition to-Dance'>
+    <div className=' bg-gradient-to-br from-gray-900 to-blue-900'>
       <NavBar />
       <div className=''>
         <div className='  relative'>

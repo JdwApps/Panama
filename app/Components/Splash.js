@@ -14,7 +14,7 @@ const Splash = () => {
 
   return (
     <div className='h-screen w-screen bg-gray-950  flex items-center justify-center'>
-      <Lottie options={defaultOptions} height={900} width={1200} />
+      <Lottie options={defaultOptions} height={300} width={400} />
     </div>
   );
 }
